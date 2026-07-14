@@ -1,5 +1,6 @@
 package com.zfd.lease.web.admin.mapper;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zfd.lease.model.entity.SystemUser;
 import com.zfd.lease.web.admin.vo.system.user.SystemUserItemVo;
 import com.zfd.lease.web.admin.vo.system.user.SystemUserQueryVo;
@@ -14,6 +15,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 */
 public interface SystemUserMapper extends BaseMapper<SystemUser> {
 
+    IPage<SystemUserItemVo> pageSystemUser(Page<SystemUser> page, SystemUserQueryVo queryVo);
+
+    SystemUser selectOneByUsername(String username);
 }
 
 

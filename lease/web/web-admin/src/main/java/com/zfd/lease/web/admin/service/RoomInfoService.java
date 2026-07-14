@@ -1,5 +1,6 @@
 package com.zfd.lease.web.admin.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zfd.lease.model.entity.RoomInfo;
 import com.zfd.lease.web.admin.vo.room.RoomDetailVo;
 import com.zfd.lease.web.admin.vo.room.RoomItemVo;
@@ -15,4 +16,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface RoomInfoService extends IService<RoomInfo> {
 
+    void saveOrUpdateRoom(RoomSubmitVo roomSubmitVo);
+
+    IPage<RoomItemVo> pageRoomItemByQuery(Page<RoomItemVo> page, RoomQueryVo queryVo);
+
+    RoomDetailVo getRoomDetailById(Long id);
+
+    void removeRoomById(Long id);
 }
