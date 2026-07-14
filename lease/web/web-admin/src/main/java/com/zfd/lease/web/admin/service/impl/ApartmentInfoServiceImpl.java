@@ -64,7 +64,7 @@ public class ApartmentInfoServiceImpl extends ServiceImpl<ApartmentInfoMapper, A
         if (isUpdate){
             //1.删除图片列表
             LambdaQueryWrapper<GraphInfo> graphInfoQueryWrapper = new LambdaQueryWrapper<>();
-            graphInfoQueryWrapper.eq(GraphInfo::getItemId, ItemType.APARTMENT);
+            graphInfoQueryWrapper.eq(GraphInfo::getItemType, ItemType.APARTMENT);
             graphInfoQueryWrapper.eq(GraphInfo::getItemId,apartmentSubmitVo.getId());
             graphInfoService.remove(graphInfoQueryWrapper);
             //2.删除配套列表
