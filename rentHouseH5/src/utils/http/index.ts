@@ -1,155 +1,97 @@
-import axios from "axios";
-import type {
-  AxiosInstance,
-  AxiosError,
-  AxiosRequestConfig,
-  AxiosResponse
-} from "axios";
-import { showToast, showFailToast } from "vant";
-import { ResultEnum } from "@/enums/requestEnum";
-import NProgress from "../progress";
-import "vant/es/toast/style";
-import { getToken, removeToken } from "@/utils/token";
-import type { ResultData } from "@/utils/http/type";
-import { useToLoginPage } from "@/hooks/useToLoginPage";
+import axios, { AxiosInstance, AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { showToast } from 'vant'
+import { useUserStore } from '@/store/modules/user'
+import { ResultEnum } from '@/enums/httpEnums'
+import { ResultData } from './type'
+import { LOGIN_URL } from '@/config/config'
+import { RESEETSTORE } from '@/utils/reset'
+import router from '@/router'
+import NProgress from '@/config/nprogress'
 
-export const service: AxiosInstance = axios.create({
-  // 判断环境设置不同的baseURL
-  baseURL: import.meta.env.PROD ? import.meta.env.VITE_APP_BASE_URL : "/",
-  timeout: 25000
-});
-/**
- * @description: 请求拦截器
- * @returns {*}
- */
+const service: AxiosInstance = axios.create({
+  baseURL: import.meta.env.PROD ? import.meta.env.VITE_APP_BASE_URL : '/',
+  timeout: ResultEnum.TIMEOUT as number,
+})
+
+// 请求拦截器
 service.interceptors.request.use(
-  config => {
-    if ((config as HttpConfigProps).showNProgress) {
-      NProgress.start();
-    }
-    const token = getToken();
+  (config) => {
+    const userStore = useUserStore()
+    const token = userStore.token
     if (token) {
-      config.headers["access-token"] = token;
+      config.headers['access-token'] = token
     }
-    return config;
+    NProgress.start()
+    return config
   },
   (error: AxiosError) => {
-    showFailToast(error.message);
-    return Promise.reject(error);
-  }
-);
-/**
- * @description: 响应拦截器
- * @returns {*}
- */
+    NProgress.done()
+    showToast(error.message)
+    return Promise.reject(error)
+  },
+)
+
+// 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse) => {
-    NProgress.done();
-    const { data } = response;
-    // * 登陆失效
+    NProgress.done()
+    const { data } = response
+
+    // token 失效
     if (ResultEnum.EXPIRE.includes(data.code)) {
-      // 清除token
-      removeToken();
-      const useToLogin = useToLoginPage();
-      useToLogin.showToLoginPageDialog();
-      return Promise.reject(data);
+      RESEETSTORE()
+      showToast(data.message || '登录已过期，请重新登录')
+      router.replace(LOGIN_URL)
+      return Promise.reject(data)
     }
 
+    // 业务错误
     if (data.code && data.code !== ResultEnum.SUCCESS) {
-      showToast(data.message || ResultEnum.ERRMESSAGE);
-      return Promise.reject(data);
+      showToast(data.message || ResultEnum.ERRMESSAGE)
+      return Promise.reject(data)
     }
-    return data;
+
+    return data
   },
   (error: AxiosError) => {
-    NProgress.done();
-    // 处理 HTTP 网络错误
-    let message = "";
-    // HTTP 状态码
-    const status = error.response?.status;
+    NProgress.done()
+    const status = error.response?.status
+    let message = '网络连接故障'
     switch (status) {
-      case 400:
-        message = "请求错误";
-        break;
       case 401:
-        message = "未授权，请登录";
-        break;
+        message = '登录已过期，请重新登录'
+        break
       case 403:
-        message = "拒绝访问";
-        break;
+        message = '拒绝访问'
+        break
       case 404:
-        message = `请求地址出错: ${error.response?.config?.url}`;
-        break;
-      case 408:
-        message = "请求超时";
-        break;
+        message = '请求地址不存在'
+        break
       case 500:
-        message = "服务器内部错误";
-        break;
-      case 501:
-        message = "服务未实现";
-        break;
-      case 502:
-        message = "网关错误";
-        break;
-      case 503:
-        message = "服务不可用";
-        break;
-      case 504:
-        message = "网关超时";
-        break;
-      case 505:
-        message = "HTTP版本不受支持";
-        break;
-      default:
-        message = "网络连接故障";
+        message = '服务器故障'
+        break
     }
-
-    showFailToast(message);
-    return Promise.reject(error);
-  }
-);
-
-/**
- * @description: 导出封装的请求方法
- * @returns {*}
- */
-interface HttpConfigProps extends AxiosRequestConfig {
-  showNProgress?: boolean;
-}
+    showToast(message)
+    return Promise.reject(error)
+  },
+)
 
 const http = {
-  get<T>(
-    url: string,
-    params?: object,
-    config?: HttpConfigProps
-  ): Promise<ResultData<T>> {
-    return service.get(url, { params, ...config });
+  get<T>(url: string, params?: object, config?: AxiosRequestConfig): Promise<ResultData<T>> {
+    return service.get(url, { params, ...config })
   },
 
-  post<T>(
-    url: string,
-    data?: object,
-    config?: HttpConfigProps
-  ): Promise<ResultData<T>> {
-    return service.post(url, data, config);
+  post<T>(url: string, data?: object, config?: AxiosRequestConfig): Promise<ResultData<T>> {
+    return service.post(url, data, config)
   },
 
-  put<T>(
-    url: string,
-    data?: object,
-    config?: HttpConfigProps
-  ): Promise<ResultData<T>> {
-    return service.put(url, data, config);
+  put<T>(url: string, data?: object, config?: AxiosRequestConfig): Promise<ResultData<T>> {
+    return service.put(url, data, config)
   },
 
-  delete<T>(
-    url: string,
-    data?: object,
-    config?: AxiosRequestConfig
-  ): Promise<ResultData<T>> {
-    return service.delete(url, { data, ...config });
-  }
-};
+  delete<T>(url: string, data?: object, config?: AxiosRequestConfig): Promise<ResultData<T>> {
+    return service.delete(url, { data, ...config })
+  },
+}
 
-export default http;
+export default http

@@ -1,48 +1,41 @@
-import { defineStore } from "pinia";
-import type {
-  loginQueryInterface,
-  UserInfoInterface,
-  UserStateInterface
-} from "@/api/user/types";
-import { getUserInfo, login } from "@/api/user";
-import { removeToken, setToken } from "@/utils/token";
+import { defineStore } from 'pinia'
+import { login, getSmsCode, getUserInfo } from '@/api/user'
+import type { UserInfo, LoginParams } from '@/api/user/types'
+
+interface UserState {
+  token: string | null
+  userInfo: UserInfo | null
+}
 
 export const useUserStore = defineStore({
-  id: "app-user",
-  state: (): UserStateInterface => ({
+  id: 'app-h5-user',
+  state: (): UserState => ({
     token: null,
-    userInfo: null
+    userInfo: null,
   }),
   actions: {
-    // setToken
     setToken(token: string) {
-      this.token = token;
+      this.token = token
     },
-    // login
-    async LoginAction(params: loginQueryInterface) {
-      const { data } = await login(params);
-      setToken(data);
-      await this.GetInfoAction();
+    setUserInfo(userInfo: UserInfo) {
+      this.userInfo = userInfo
     },
-    // setUserInfo
-    setUserInfo(userInfo: UserInfoInterface) {
-      this.userInfo = userInfo;
+    async getCode(phone: string) {
+      const { data } = await getSmsCode(phone)
+      return data
     },
-    async GetInfoAction() {
-      const { data } = await getUserInfo();
-      // 存储用户信息
-      this.setUserInfo(data);
+    async loginAction(params: LoginParams) {
+      const { data: token } = await login(params)
+      this.setToken(token)
+      await this.getInfoAction()
     },
-    async Logout() {
-      // await logout()
-      this.resetUserStore();
-      removeToken();
+    async getInfoAction() {
+      const { data } = await getUserInfo()
+      this.setUserInfo(data)
     },
-    resetUserStore() {
-      this.token = null;
-      this.userInfo = null;
-    }
+    logout() {
+      this.$reset()
+    },
   },
-  // 设置为true，缓存state
-  persist: true
-});
+  persist: true,
+})

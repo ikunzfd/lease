@@ -1,36 +1,44 @@
-<script setup lang="ts">
-import tabbar from "@/components/Tabbar/index.vue";
-import NavBar from "@/components/NavBar/index.vue";
-import { useCachedViewStoreHook } from "@/store/modules/cachedView";
-import { useDarkMode } from "@/hooks/useToggleDarkMode";
-import { computed } from "vue";
-
-const cachedViews = computed(() => {
-  return useCachedViewStoreHook().cachedViewList;
-});
-</script>
-
 <template>
-  <div class="app-wrapper">
-    <van-config-provider :theme="useDarkMode() ? 'dark' : 'light'">
-      <nav-bar />
+  <div class="app-layout">
+    <NavBar />
+    <div class="layout-content" :class="{ 'with-tabbar': showTabbar }">
       <router-view v-slot="{ Component }">
-        <keep-alive :include="cachedViews">
+        <keep-alive :include="['Search']">
           <component :is="Component" />
         </keep-alive>
       </router-view>
-      <tabbar />
-    </van-config-provider>
+    </div>
+    <Tabbar v-if="showTabbar" />
   </div>
 </template>
 
-<style lang="less" scoped>
-@import "@/styles/mixin.less";
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import NavBar from '@/components/NavBar/index.vue'
+import Tabbar from '@/components/Tabbar/index.vue'
+import { tabBarRoutes } from '@/router/routes'
 
-.app-wrapper {
-  .clearfix();
-  position: relative;
-  height: 100%;
-  width: 100%;
+const route = useRoute()
+
+const showTabbar = computed(() => {
+  const tabPaths = tabBarRoutes.map((r) => r.path)
+  return tabPaths.includes(route.path)
+})
+</script>
+
+<style lang="less" scoped>
+.app-layout {
+  min-height: 100vh;
+  background-color: #f7f8fa;
+}
+
+.layout-content {
+  padding-bottom: 16px;
+  min-height: 100vh;
+
+  &.with-tabbar {
+    padding-bottom: 60px;
+  }
 }
 </style>

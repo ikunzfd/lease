@@ -1,205 +1,244 @@
 <template>
-  <van-skeleton :row="20" :loading="!apartmentDetailInfo?.id">
-    <div class="page-container">
-      <!--  轮播图-->
-      <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white">
-        <van-swipe-item
-          v-for="item in apartmentDetailInfo.graphVoList"
-          :key="item.url"
+  <div class="apartment-detail-page" v-if="apartment">
+    <!-- 图片轮播 -->
+    <van-swipe :autoplay="3000" indicator-color="#1989fa" class="apartment-swipe">
+      <van-swipe-item v-for="(img, idx) in apartment.graphVoList" :key="idx">
+        <van-image :src="img.url" width="100%" height="240px" fit="cover" />
+      </van-swipe-item>
+    </van-swipe>
+
+    <!-- 基本信息 -->
+    <div class="card apartment-basic">
+      <h2 class="apartment-name">{{ apartment.name }}</h2>
+      <div class="price-tag" v-if="apartment.minRent">
+        <span class="price-label">最低</span>
+        <span class="price-value">¥{{ apartment.minRent }}/月起</span>
+      </div>
+      <div class="tags-row" v-if="apartment.labelInfoList?.length">
+        <van-tag
+          v-for="label in apartment.labelInfoList"
+          :key="label.id"
+          plain
+          type="primary"
+          size="medium"
+          class="mr-1 mb-1"
         >
-          <van-image fit="fill" :src="item.url" width="100vw" height="35vh">
-            <template v-slot:error>加载失败</template>
-            <template v-slot:loading>
-              <van-loading type="spinner" size="20" />
-            </template>
-          </van-image>
-        </van-swipe-item>
-      </van-swipe>
-      <!--  公寓的信息-->
-      <div class="card">
-        <!--      标题-->
-        <div class="font-bold">
-          {{ `${apartmentDetailInfo.name}` }}
-        </div>
-        <!--      标签-->
-        <div class="my-[7px]">
-          <van-tag
-            class="last:mr-0 mr-[5px]"
-            plain
-            v-for="item in apartmentDetailInfo.labelInfoList"
-            :key="item.id"
-            type="primary"
-            >{{ item.name }}
-          </van-tag>
-        </div>
-        <!--      价格-->
-        <div>
-          <span class="text-red-500 text-[16px]">￥</span>
-          <span class="text-red-500 text-[18px]"
-            >{{ apartmentDetailInfo.minRent }}/月起</span
-          >
-        </div>
+          {{ label.name }}
+        </van-tag>
       </div>
-      <!--    基本信息-->
-      <div class="card">
-        <div class="base-info-title py-[4px]">社区介绍</div>
-        <div class="my-[5px]">
-          <div>
-            {{ apartmentDetailInfo.introduction }}
-          </div>
-        </div>
+      <div class="address-row">
+        <van-icon name="location-o" size="14" />
+        <span>{{ apartment.provinceName }}{{ apartment.cityName }}{{ apartment.districtName }}{{ apartment.addressDetail }}</span>
       </div>
-      <!--    配套说明-->
-      <div class="card">
-        <div class="base-info-title py-[4px]">配套说明</div>
-        <div class="my-[5px]">
-          <van-row>
-            <van-col
-              span="4"
-              class="my-[3px]"
-              v-for="item in apartmentDetailInfo.facilityInfoList"
-              :key="item.id"
-            >
-              <div class="flex flex-col justify-center items-center">
-                <SvgIcon :name="item.icon" size="25" />
-                <span class="text-center">
-                  {{ item.name }}
-                </span>
-              </div>
-            </van-col>
-          </van-row>
-        </div>
-      </div>
-      <!--    位置详情-->
-      <div class="card">
-        <div class="base-info-title py-[4px]">位置详情</div>
-        <div class="my-[5px]">
-          <div class="text-xs mb-[5px]">
-            {{ apartmentDetailInfo.addressDetail }}
-          </div>
-        </div>
-        <!--        地图容器-->
-        <div id="container" class="w-[85vw] h-[30vh]"></div>
-      </div>
-      <!--    可选房间列表-->
-      <div class="card">
-        <div class="base-info-title py-[4px]">可选房间列表</div>
-        <div class="mt-[5px]">
-          <PullDownRefreshContainer
-            :request="getRoomListHandler"
-            ref="pullDownRefreshContainerRef"
-            class="min-h-[70vh] px-[10px]"
-          >
-            <template v-if="roomList?.length">
-              <RoomCard
-                v-for="item in roomList"
-                :key="item.id"
-                :data="item"
-              ></RoomCard>
-            </template>
-          </PullDownRefreshContainer>
-        </div>
-      </div>
-      <!--    预约看房-->
-      <van-sticky :offset-bottom="0" position="bottom">
-        <van-button type="primary" block @click="appointmentToViewHandle"
-          >预约看房</van-button
-        >
-      </van-sticky>
     </div>
-  </van-skeleton>
+
+    <!-- 公寓介绍 -->
+    <div class="card" v-if="apartment.introduction">
+      <div class="section-title">公寓介绍</div>
+      <p class="introduction-text">{{ apartment.introduction }}</p>
+    </div>
+
+    <!-- 配套设施 -->
+    <div class="card" v-if="apartment.facilityInfoList?.length">
+      <div class="section-title">社区配套</div>
+      <van-grid :column-num="4" :border="false">
+        <van-grid-item
+          v-for="fac in apartment.facilityInfoList"
+          :key="fac.id"
+          :text="fac.name"
+          icon="checked"
+        />
+      </van-grid>
+    </div>
+
+    <!-- 该公寓房间列表 -->
+    <div class="card room-list-section">
+      <div class="section-title">可选房间</div>
+      <RoomCard
+        v-for="room in roomList"
+        :key="room.id"
+        :room="room"
+        class="mb-3"
+      />
+      <EmptyState v-if="!roomLoading && roomList.length === 0" description="暂无可用房间" />
+      <div class="text-center py-2">
+        <van-loading v-if="roomLoading" size="20" />
+        <span v-else-if="roomFinished && roomList.length > 0" class="text-xs text-gray-400">没有更多了</span>
+      </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="bottom-bar">
+      <van-button
+        icon="phone-o"
+        type="default"
+        class="call-btn"
+        v-if="apartment.phone"
+        @click="callPhone"
+      >
+        电话咨询
+      </van-button>
+      <van-button type="primary" class="appointment-btn" @click="goAppointment">
+        预约看房
+      </van-button>
+    </div>
+
+    <PageLoading v-if="loading" type="detail" />
+  </div>
 </template>
+
 <script setup lang="ts">
-import { getApartmentDetailById, getRoomListByApartmentId } from "@/api/search";
-import { onMounted, ref } from "vue";
-import type { ApartmentInterface } from "@/api/search/types";
-import { useMap } from "@/hooks/useMap";
-import poiMarkerRed from "@/assets/poi-marker-red.png";
-import RoomCard from "@/components/RoomCard/RoomCard.vue";
-import PullDownRefreshContainer from "@/components/PullDownRefreshContainer/PullDownRefreshContainer.vue";
-import type { ReqPage } from "@/api/types";
-import type { RoomInterface } from "@/api/search/types";
-import { useRouter, useRoute } from "vue-router";
-const router = useRouter();
-const route = useRoute();
-// 公寓的详情信息
-const apartmentDetailInfo = ref<ApartmentInterface>({} as ApartmentInterface);
-// 获取公寓的详情信息
-const getApartmentDetailHandle = async () => {
-  const { data } = await getApartmentDetailById(route.query.id as string);
-  apartmentDetailInfo.value = data;
-};
-// 房间列表
-const roomList = ref<RoomInterface[]>([]);
-const pullDownRefreshContainerRef =
-  ref<InstanceType<typeof PullDownRefreshContainer>>();
-// 分页获取房间的信息
-async function getRoomListHandler(pageInfo: ReqPage) {
-  //   调用接口
-  const { data } = await getRoomListByApartmentId({
-    id: route.query.id as string,
-    ...pageInfo
-  });
-  data.records.forEach(item => {
-    item.apartmentInfo = apartmentDetailInfo.value;
-  });
-  console.log("pageInfo.current", pageInfo.current);
-  if (pageInfo.current === 1) {
-    roomList.value = data.records;
-  } else {
-    roomList.value = [...roomList.value, ...data.records];
-  }
-  pullDownRefreshContainerRef.value?.setFinished(
-    roomList.value.length >= data.total
-  );
-}
-//#region <高德地图相关>
-// 地图实例
-const { AMap, initMap } = useMap();
-function initMapPage(opts?: { lng: number; lat: number }) {
-  console.log("opts", opts);
-  const map = new AMap.value.Map("container", {
-    zoom: 19, //初始地图级别
-    center: [opts?.lng, opts?.lat], //初始地图中心点
-    showIndoorMap: false //关闭室内地图
-  });
-  const icon = new AMap.value.Icon({
-    size: new AMap.value.Size(25, 34), // 图标尺寸
-    image: poiMarkerRed, // Icon的图像
-    imageSize: new AMap.value.Size(25, 34)
-  });
-  const marker = new AMap.value.Marker({
-    icon: icon,
-    position: [opts?.lng, opts?.lat],
-    anchor: "bottom-center"
-  });
-  map.add(marker);
-  map.setFitView();
-}
-// 预约看房
-const appointmentToViewHandle = () => {
-  console.log("appointmentToViewHandle");
-  router.push({
-    path: "/appointment",
-    query: { apartmentId: apartmentDetailInfo.value.id }
-  });
-};
-//#endregion
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { showToast } from 'vant'
+import { getApartmentDetailById, getRoomListByApartmentId } from '@/api/search'
+import type { ApartmentDetailVo, RoomItemVo } from '@/api/search/types'
+import RoomCard from '@/components/RoomCard/RoomCard.vue'
+import EmptyState from '@/components/EmptyState/EmptyState.vue'
+import PageLoading from '@/components/PageLoading/PageLoading.vue'
+
+const route = useRoute()
+const router = useRouter()
+
+const apartment = ref<ApartmentDetailVo | null>(null)
+const loading = ref(true)
+const roomList = ref<RoomItemVo[]>([])
+const roomLoading = ref(false)
+const roomFinished = ref(false)
+const roomCurrent = ref(1)
+
 onMounted(async () => {
-  await getApartmentDetailHandle();
-  console.log(apartmentDetailInfo.value.longitude);
-  await initMap();
-  initMapPage({
-    lng: +apartmentDetailInfo.value.longitude,
-    lat: +apartmentDetailInfo.value.latitude
-  });
-});
+  const id = Number(route.query.id)
+  if (!id) return
+  try {
+    const { data } = await getApartmentDetailById(id)
+    apartment.value = data
+    loadRooms(id)
+  } finally {
+    loading.value = false
+  }
+})
+
+async function loadRooms(apartmentId: number) {
+  roomLoading.value = true
+  try {
+    const { data } = await getRoomListByApartmentId({
+      current: roomCurrent.value,
+      size: 10,
+      id: apartmentId,
+    })
+    if (data?.records) {
+      roomList.value = [...roomList.value, ...data.records]
+      roomFinished.value = data.records.length < 10
+    } else {
+      roomFinished.value = true
+    }
+  } catch {
+    roomFinished.value = true
+  } finally {
+    roomLoading.value = false
+  }
+}
+
+function goAppointment() {
+  if (apartment.value) {
+    router.push(`/appointment?apartmentId=${apartment.value.id}`)
+  }
+}
+
+function callPhone() {
+  if (apartment.value?.phone) {
+    window.location.href = `tel:${apartment.value.phone}`
+  }
+}
 </script>
 
-<style scoped lang="less">
-.base-info-title {
-  //background-color: var(--van-primary-background-color);
-  font-weight: bold;
-  //color: white;
+<style lang="less" scoped>
+.apartment-detail-page {
+  padding-bottom: 80px;
+}
+
+.apartment-swipe {
+  img {
+    display: block;
+  }
+}
+
+.apartment-basic {
+  .apartment-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .price-tag {
+    margin-bottom: 10px;
+
+    .price-label {
+      font-size: 12px;
+      background: #ee0a24;
+      color: #fff;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+
+    .price-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #ee0a24;
+    }
+  }
+
+  .address-row {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #646566;
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #323233;
+  margin-bottom: 10px;
+  padding-left: 4px;
+  border-left: 3px solid #1989fa;
+}
+
+.introduction-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #646566;
+}
+
+.room-list-section {
+  margin-top: 0;
+}
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 10px;
+  padding: 10px 16px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  background: #fff;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+
+  .call-btn {
+    flex: 1;
+    border-radius: 20px;
+  }
+
+  .appointment-btn {
+    flex: 2;
+    border-radius: 20px;
+  }
 }
 </style>

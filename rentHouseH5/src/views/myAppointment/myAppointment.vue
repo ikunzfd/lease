@@ -1,93 +1,102 @@
 <template>
-  <van-skeleton :row="20" :loading="!appointmentList">
-    <div class="p-[10px]">
-      <van-card
-        class="rounded-xl shadow"
-        v-for="item in appointmentList"
-        :key="item.id"
-        @click="goAppointmentDetail(item)"
-      >
-        <!--      title-->
-        <template #title>
-          <h2 class="text-[15px] font-bold">{{ item.apartmentName }}</h2>
-        </template>
-        <!--    thumb-->
-        <template #thumb>
+  <div class="my-appointment-page">
+    <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+      <div v-if="!loading && list.length === 0">
+        <EmptyState description="暂无预约记录">
+          <van-button type="primary" size="small" to="/search">去看看房源</van-button>
+        </EmptyState>
+      </div>
+
+      <div v-for="item in list" :key="item.id" class="card appointment-card">
+        <div class="card-header">
           <van-image
-            class="w-full h-full object-cover"
-            :src="item.graphVoList?.[0]?.url || '失败'"
-          >
-            <template v-slot:error>加载失败</template>
-            <template v-slot:loading>
-              <van-loading type="spinner" size="20" />
-            </template>
-          </van-image>
-        </template>
-        <!--      tags-->
-        <template #tags>
-          <van-tag
-            v-if="item.appointmentStatus === AppointmentStatus.WAITING"
-            class="mt-[10px]"
-            type="success"
-            size="medium"
-            >{{
-              getLabelByValue(AppointmentStatusMap, item.appointmentStatus)
-            }}</van-tag
-          >
-          <van-tag v-else class="mt-[10px]" type="default" size="medium">{{
-            getLabelByValue(AppointmentStatusMap, item.appointmentStatus)
-          }}</van-tag>
-        </template>
-        <!--      price-->
-        <template #price>
-          <div class="flex justify-between">
-            <div class="text-[12px] text-red-500">预约时间</div>
-            <div class="text-[12px] text-red-500">
+            v-if="item.graphVoList?.[0]?.url"
+            :src="item.graphVoList[0].url"
+            width="80px"
+            height="60px"
+            fit="cover"
+            radius="6px"
+          />
+          <div class="header-info">
+            <div class="apartment-name">{{ item.apartmentName }}</div>
+            <div class="appointment-time">
+              <van-icon name="clock-o" size="12" />
               {{ item.appointmentTime }}
             </div>
           </div>
-        </template>
-      </van-card>
-    </div>
-
-    <van-empty v-if="appointmentList?.length <= 0" description="搜索不到" />
-  </van-skeleton>
+          <van-tag :type="statusType(item.appointmentStatus?.code)" size="medium">
+            {{ item.appointmentStatus?.name }}
+          </van-tag>
+        </div>
+      </div>
+    </van-pull-refresh>
+  </div>
 </template>
-<script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
-import type { AppointmentItemInterface } from "@/api/search/types";
-import { getMyAppointmentList } from "@/api/search";
-import {
-  AppointmentStatus,
-  AppointmentStatusMap,
-  getLabelByValue
-} from "@/enums/constEnums";
 
-const router = useRouter();
-// 预约列表
-const appointmentList = ref<AppointmentItemInterface[]>();
-// 获取预约列表
-const getAppointmentListHandle = async () => {
-  const { data } = await getMyAppointmentList();
-  appointmentList.value = data;
-};
-// 跳转到公寓的详情页面
-const goAppointmentDetail = (item: AppointmentItemInterface) => {
-  router.push({
-    path: "/appointment",
-    query: { appointmentId: item.id }
-  });
-};
-onMounted(async () => {
-  await getAppointmentListHandle();
-});
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { getMyAppointmentList } from '@/api/search'
+import type { AppointmentItemVo } from '@/api/search/types'
+import EmptyState from '@/components/EmptyState/EmptyState.vue'
+
+const list = ref<AppointmentItemVo[]>([])
+const loading = ref(true)
+const refreshing = ref(false)
+
+function statusType(code: number): string {
+  switch (code) {
+    case 1: return 'warning'
+    case 2: return 'default'
+    case 3: return 'success'
+    default: return 'default'
+  }
+}
+
+async function fetchList() {
+  try {
+    const { data } = await getMyAppointmentList()
+    list.value = data || []
+  } finally {
+    loading.value = false
+  }
+}
+
+async function onRefresh() {
+  refreshing.value = true
+  await fetchList()
+  refreshing.value = false
+}
+
+onMounted(fetchList)
 </script>
 
-<style scoped lang="less">
-.base-info-title {
-  background-color: var(--van-primary-background-color);
-  font-weight: bold;
-  //color: white;
+<style lang="less" scoped>
+.my-appointment-page {
+  min-height: 100vh;
+  padding: 12px;
+
+  .appointment-card {
+    .card-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .header-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .apartment-name {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .appointment-time {
+      font-size: 12px;
+      color: #969799;
+    }
+  }
 }
 </style>

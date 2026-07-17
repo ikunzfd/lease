@@ -1,40 +1,45 @@
-import {
-  createRouter,
-  createWebHashHistory,
-  type RouteLocationNormalized
-} from "vue-router";
-import routes from "./routes";
-import { useCachedViewStoreHook } from "@/store/modules/cachedView";
-import NProgress from "@/utils/progress";
-import setPageTitle from "@/utils/set-page-title";
+import { createRouter, createWebHashHistory } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
+import { constantRoutes } from './routes'
+import { useUserStore } from '@/store/modules/user'
+import { LOGIN_URL, ROUTER_WHITE_LIST } from '@/config/config'
+import NProgress from '@/config/nprogress'
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes
-});
+  routes: constantRoutes as RouteRecordRaw[],
+  scrollBehavior: () => ({ left: 0, top: 0 }),
+})
 
-export interface toRouteType extends RouteLocationNormalized {
-  meta: {
-    title?: string;
-    noCache?: boolean;
-  };
-}
+router.beforeEach((to, from, next) => {
+  NProgress.start()
 
-router.beforeEach((to: toRouteType, from, next) => {
-  NProgress.start();
-  // 解决路由缓存导致的 keep-alive 组件不刷新的问题
-  if (to.name === "Login") {
-    useCachedViewStoreHook().delAllCachedViews();
+  const userStore = useUserStore()
+
+  // 1. 访问登录页，有 token 就留在当前页
+  if (to.path === LOGIN_URL) {
+    if (userStore.token) return next(from.fullPath)
+    return next()
   }
-  // 路由缓存
-  useCachedViewStoreHook().addCachedView(to);
-  // 页面 title
-  setPageTitle(to.meta.title);
-  next();
-});
+
+  // 2. 白名单直接放行
+  if (ROUTER_WHITE_LIST.includes(to.path)) return next()
+
+  // 3. 无 token 跳转登录页
+  if (!userStore.token) {
+    return next({ path: LOGIN_URL, query: { redirect: to.fullPath } })
+  }
+
+  // 4. 放行
+  next()
+})
 
 router.afterEach(() => {
-  NProgress.done();
-});
+  NProgress.done()
+})
 
-export default router;
+router.onError(() => {
+  NProgress.done()
+})
+
+export default router

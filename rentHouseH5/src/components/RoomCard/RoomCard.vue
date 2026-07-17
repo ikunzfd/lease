@@ -1,92 +1,128 @@
 <template>
-  <van-card @click="goRoomDetail" class="rounded-xl shadow">
-    <!--      title-->
-    <template #title>
-      <slot name="title">
-        <!--      标题-->
-        <span class="text-[14px] font-bold">{{
-          `${data.apartmentInfo?.name || ""} ${data.roomNumber}房间`
-        }}</span>
-      </slot>
-    </template>
-    <!--      desc-->
-    <template #desc>
-      <slot name="desc">
-        <div>
-          <span class="text-[12px] --van-gray-6">{{
-            `${data?.apartmentInfo?.provinceName || ""} ${
-              data?.apartmentInfo?.cityName || ""
-            } ${data?.apartmentInfo?.districtName || ""}`
-          }}</span>
+  <div class="room-card card" @click="handleClick">
+    <van-image
+      v-if="firstImage"
+      :src="firstImage"
+      width="100%"
+      height="180px"
+      fit="cover"
+      radius="8px"
+      lazy-load
+    >
+      <template #error>
+        <div class="image-placeholder">
+          <van-icon name="photo-o" size="40" color="#dcdee0" />
         </div>
-      </slot>
-    </template>
-    <!--    price-->
-    <template #price>
-      <slot name="price">
-        <!--      价格-->
-        <span class="text-red-500 text-[14px]">￥</span>
-        <span class="text-red-500 text-[20px]">{{ data.rent }}</span>
-      </slot>
-    </template>
-    <!--    thumb-->
-    <template #thumb>
-      <slot name="thumb">
-        <van-image
-          class="w-full h-full object-cover"
-          :src="data.graphVoList?.[0]?.url || '失败'"
-        >
-          <template v-slot:error>加载失败</template>
-          <template v-slot:loading>
-            <van-loading type="spinner" size="20" />
-          </template>
-        </van-image>
-      </slot>
-    </template>
-    <!--    tags-->
-    <template #tags>
-      <slot name="tags">
+      </template>
+    </van-image>
+    <div class="room-info">
+      <div class="room-header">
+        <span class="room-number">{{ room.roomNumber }}</span>
+        <span class="room-rent">
+          <span class="currency">¥</span>
+          <span class="price">{{ room.rent }}</span>
+          <span class="unit">/月</span>
+        </span>
+      </div>
+      <div class="room-tags" v-if="room.labelInfoList?.length">
         <van-tag
-          class="last:mr-0 mr-[5px]"
+          v-for="label in room.labelInfoList.slice(0, 3)"
+          :key="label.id"
           plain
-          v-for="item in data?.labelInfoList"
-          :key="item.id"
           type="primary"
-          >{{ item.name }}
+          size="small"
+          class="mr-1"
+        >
+          {{ label.name }}
         </van-tag>
-      </slot>
-    </template>
-  </van-card>
+      </div>
+      <div class="apartment-name text-ellipsis">
+        <van-icon name="location-o" size="12" />
+        {{ apartmentName }}
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import type { RoomInterface } from "@/api/search/types";
-import type { PropType } from "vue";
-import { useRouter } from "vue-router";
-//实际上只需要这些属性
-// export interface RoomCardDataProps
-//   extends Pick<
-//     RoomInterface,
-//     "id" | "roomNumber" | "rent" | "graphVoList" | "labelInfoList"
-//   > {
-//   apartmentInfo: Pick<
-//     RoomInterface["apartmentInfo"],
-//     "name" | "provinceName" | "cityName" | "districtName"
-//   >;
-// }
-const router = useRouter();
-const props = defineProps({
-  // 房间的信息数据
-  data: {
-    type: Object as PropType<RoomInterface>,
-    default: () => ({}),
-    readOnly: true
-  }
-});
-// 跳转到房间的详情页面
-const goRoomDetail = () => {
-  router.push({ path: "/roomDetail", query: { id: props.data.id } });
-};
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import type { RoomItemVo } from '@/api/search/types'
+
+const props = defineProps<{
+  room: RoomItemVo
+}>()
+
+const router = useRouter()
+
+const firstImage = computed(() => {
+  return props.room.graphVoList?.[0]?.url || ''
+})
+
+const apartmentName = computed(() => {
+  const a = props.room.apartmentInfo
+  if (!a) return ''
+  return `${a.name} · ${a.districtName || a.cityName || ''}`
+})
+
+function handleClick() {
+  router.push(`/roomDetail?id=${props.room.id}`)
+}
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+.room-card {
+  overflow: hidden;
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.room-info {
+  padding: 10px 0 0;
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.room-number {
+  font-size: 15px;
+  font-weight: 600;
+  color: #323233;
+}
+
+.room-rent {
+  .currency {
+    font-size: 12px;
+    color: #ee0a24;
+  }
+  .price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ee0a24;
+  }
+  .unit {
+    font-size: 11px;
+    color: #ee0a24;
+  }
+}
+
+.room-tags {
+  margin-bottom: 6px;
+}
+
+.apartment-name {
+  font-size: 12px;
+  color: #969799;
+}
+</style>

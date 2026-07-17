@@ -1,268 +1,316 @@
 <template>
-  <van-skeleton :row="20" :loading="!roomDetailInfo?.id">
-    <div class="page-container">
-      <!--  轮播图-->
-      <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white">
-        <van-swipe-item
-          v-for="item in roomDetailInfo.graphVoList"
-          :key="item.url"
-        >
-          <van-image fit="fill" :src="item.url" width="100vw" height="35vh">
-            <template v-slot:error>加载失败</template>
-            <template v-slot:loading>
-              <van-loading type="spinner" size="20" />
-            </template>
-          </van-image>
-        </van-swipe-item>
-      </van-swipe>
+  <div class="room-detail-page" v-if="room">
+    <!-- 图片轮播 -->
+    <van-swipe :autoplay="3000" indicator-color="#1989fa" class="room-swipe">
+      <van-swipe-item v-for="(img, idx) in room.graphVoList" :key="idx">
+        <van-image :src="img.url" width="100%" height="260px" fit="cover" />
+      </van-swipe-item>
+      <template #indicator>
+        <div class="swipe-indicator">{{ room.graphVoList.length }}张图片</div>
+      </template>
+    </van-swipe>
 
-      <!--  房间的信息-->
-      <div class="card">
-        <div class="">
-          <!--      标题-->
-          <div class="font-bold">
-            {{
-              `${roomDetailInfo.apartmentItemVo.name} ${roomDetailInfo.roomNumber}房间`
-            }}
-          </div>
-          <!--      标签-->
-          <div class="my-[7px]">
-            <van-tag
-              class="last:mr-0 mr-[5px]"
-              plain
-              v-for="item in roomDetailInfo.labelInfoList"
-              :key="item.id"
-              type="primary"
-              >{{ item.name }}
-            </van-tag>
-          </div>
-          <!--      价格-->
-          <div>
-            <span class="text-red-500 text-[16px]">￥</span>
-            <span class="text-red-500 text-[18px]"
-              >{{ roomDetailInfo.rent }}/月</span
-            >
-          </div>
-        </div>
+    <!-- 基本信息 -->
+    <div class="card room-basic">
+      <div class="price-row">
+        <span class="price"><em>¥</em>{{ room.rent }}<span class="unit">/月</span></span>
+        <span class="room-num">{{ room.roomNumber }}</span>
       </div>
-
-      <!--    基本信息-->
-      <div class="card">
-        <div class="base-info-title py-[4px]">基本信息</div>
-        <div class="my-[5px]">
-          <van-row gutter="10">
-            <van-col
-              span="12"
-              class="my-[3px]"
-              v-for="item in roomDetailInfo.attrValueVoList"
-              :key="item.id"
-            >
-              <van-row>
-                <van-col span="6">
-                  <van-tag type="primary">{{ item.attrKeyName }}</van-tag>
-                </van-col>
-                <van-col span="18">
-                  {{ item.name }}
-                </van-col>
-              </van-row>
-            </van-col>
-            <!--          占位修饰-->
-            <van-col
-              class="my-[3px]"
-              v-if="roomDetailInfo.attrValueVoList?.length % 2 !== 0"
-              span="12"
-            >
-            </van-col>
-          </van-row>
-        </div>
-      </div>
-      <!--    配套信息-->
-      <div class="card">
-        <div class="base-info-title py-[4px]">配套信息</div>
-        <div class="my-[5px]">
-          <van-row>
-            <van-col
-              span="4"
-              class="my-[3px]"
-              v-for="item in roomDetailInfo.facilityInfoList"
-              :key="item.id"
-            >
-              <div class="flex flex-col justify-center items-center">
-                <SvgIcon :name="item.icon" size="25" />
-                <span class="text-center">
-                  {{ item.name }}
-                </span>
-              </div>
-            </van-col>
-          </van-row>
-        </div>
-      </div>
-      <!--    位置详情-->
-      <div class="card">
-        <div class="base-info-title py-[4px]">位置详情</div>
-        <div class="my-[5px]">
-          <div class="text-xs mb-[5px] w-[300px]">
-            {{ roomDetailInfo.apartmentItemVo.addressDetail }}
-          </div>
-        </div>
-        <!--        地图容器-->
-        <div id="container" class="w-[85vw] h-[30vh]"></div>
-      </div>
-      <!--    费用明细-->
-      <div class="card">
-        <div class="base-info-title py-[4px]">费用明细</div>
-        <div class="my-[5px]">
-          <van-row gutter="10">
-            <van-col span="12">
-              <van-tag type="primary" size="medium">费用科目</van-tag>
-            </van-col>
-            <van-col span="12">
-              <van-tag type="primary" size="medium">收费标准</van-tag>
-            </van-col>
-            <template
-              v-for="item in roomDetailInfo.feeValueVoList"
-              :key="item.id"
-            >
-              <van-col span="12" class="my-[5px]">
-                <span>{{ item.feeKeyName }}</span>
-              </van-col>
-              <van-col span="12" class="my-[5px]">
-                <span>{{ `￥${item.name}${item.unit}` }}</span>
-              </van-col>
-            </template>
-          </van-row>
-        </div>
-      </div>
-      <!--    付款说明-->
-      <div class="card">
-        <div class="base-info-title py-[4px]">可选付款方式</div>
-        <div class="my-[5px]">
-          <van-row gutter="10">
-            <van-col span="12">
-              <van-tag type="primary" size="medium">可选付款方式</van-tag>
-            </van-col>
-            <van-col span="12">
-              <van-tag type="primary" size="medium">说明</van-tag>
-            </van-col>
-            <template
-              v-for="item in roomDetailInfo.paymentTypeList"
-              :key="item.id"
-            >
-              <van-col span="12" class="my-[5px]">
-                <span>{{ item.name }}</span>
-              </van-col>
-              <van-col span="12" class="my-[5px]">
-                <span>{{ item.additionalInfo }}</span>
-              </van-col>
-            </template>
-          </van-row>
-        </div>
-      </div>
-      <div class="card">
-        <div class="base-info-title py-[4px]">可选租期</div>
-        <div class="my-[5px]">
-          <van-row gutter="10">
-            <van-col span="12">
-              <van-tag type="primary" size="medium">可选租期</van-tag>
-            </van-col>
-            <van-col span="12">
-              <van-tag type="primary" size="medium">说明</van-tag>
-            </van-col>
-            <template
-              v-for="item in roomDetailInfo.leaseTermList"
-              :key="item.id"
-            >
-              <van-col span="12" class="my-[5px]">
-                <span>{{ item.monthCount + item.unit }}</span>
-              </van-col>
-              <van-col span="12" class="my-[5px]">
-                <span> 到期可续 </span>
-              </van-col>
-            </template>
-          </van-row>
-        </div>
-      </div>
-      <!--    所属公寓-->
-      <div class="card">
-        <div class="base-info-title py-[4px]">所属公寓</div>
-        <div class="my-[5px] pb-[50px] px-[10px]">
-          <ApartmentCard :data="roomDetailInfo.apartmentItemVo"></ApartmentCard>
-        </div>
-      </div>
-      <!--    预约看房-->
-      <van-sticky :offset-bottom="0" position="bottom">
-        <van-button type="primary" block @click="appointmentToViewHandle"
-          >预约看房</van-button
+      <div class="tags-row" v-if="room.labelInfoList?.length">
+        <van-tag
+          v-for="label in room.labelInfoList"
+          :key="label.id"
+          plain
+          type="primary"
+          size="medium"
+          class="mr-1 mb-1"
         >
-      </van-sticky>
+          {{ label.name }}
+        </van-tag>
+      </div>
     </div>
-  </van-skeleton>
+
+    <!-- 房间属性 -->
+    <div class="card" v-if="room.attrValueVoList?.length">
+      <div class="section-title">基本信息</div>
+      <van-grid :column-num="3" :border="false">
+        <van-grid-item v-for="attr in room.attrValueVoList" :key="attr.id" :text="attr.attrKeyName">
+          <template #icon>
+            <span class="attr-value">{{ attr.name }}</span>
+          </template>
+        </van-grid-item>
+      </van-grid>
+    </div>
+
+    <!-- 配套设施 -->
+    <div class="card" v-if="room.facilityInfoList?.length">
+      <div class="section-title">配套设施</div>
+      <van-grid :column-num="4" :border="false">
+        <van-grid-item
+          v-for="fac in room.facilityInfoList"
+          :key="fac.id"
+          :text="fac.name"
+          icon="checked"
+        />
+      </van-grid>
+    </div>
+
+    <!-- 费用说明 -->
+    <div class="card" v-if="room.feeValueVoList?.length">
+      <div class="section-title">费用说明</div>
+      <div class="fee-list">
+        <div class="fee-item" v-for="fee in room.feeValueVoList" :key="fee.id">
+          <span class="fee-name">{{ fee.feeKeyName }} - {{ fee.name }}</span>
+          <span class="fee-unit">{{ fee.unit }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 租期选择 -->
+    <div class="card" v-if="room.leaseTermList?.length">
+      <div class="section-title">可选租期</div>
+      <div class="term-list">
+        <van-tag
+          v-for="term in room.leaseTermList"
+          :key="term.id"
+          plain
+          size="medium"
+          class="mr-2 mb-2"
+        >
+          {{ term.monthCount }}{{ term.unit }}
+        </van-tag>
+      </div>
+    </div>
+
+    <!-- 支付方式 -->
+    <div class="card" v-if="room.paymentTypeList?.length">
+      <div class="section-title">支付方式</div>
+      <div class="payment-item" v-for="pay in room.paymentTypeList" :key="pay.id">
+        <span class="payment-name">{{ pay.name }}</span>
+        <span class="payment-info">{{ pay.payMonthCount }} / {{ pay.additionalInfo }}</span>
+      </div>
+    </div>
+
+    <!-- 公寓信息 -->
+    <div class="card apartment-card" v-if="room.apartmentItemVo" @click="goApartment">
+      <div class="section-title">所属公寓</div>
+      <div class="apartment-info">
+        <van-image
+          v-if="room.apartmentItemVo.graphVoList?.[0]?.url"
+          :src="room.apartmentItemVo.graphVoList[0].url"
+          width="80px"
+          height="60px"
+          fit="cover"
+          radius="6px"
+        />
+        <div class="apartment-text">
+          <div class="apartment-name">{{ room.apartmentItemVo.name }}</div>
+          <div class="apartment-addr text-ellipsis">
+            {{ room.apartmentItemVo.provinceName }}{{ room.apartmentItemVo.cityName }}{{ room.apartmentItemVo.districtName }}{{ room.apartmentItemVo.addressDetail }}
+          </div>
+          <div class="apartment-phone">电话：{{ room.apartmentItemVo.phone }}</div>
+        </div>
+        <van-icon name="arrow" color="#969799" />
+      </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="bottom-bar">
+      <van-button type="primary" size="large" round @click="goAppointment">
+        预约看房
+      </van-button>
+    </div>
+
+    <!-- 加载中 -->
+    <PageLoading v-if="loading" type="detail" />
+  </div>
 </template>
+
 <script setup lang="ts">
-import { getRoomDetailById } from "@/api/search";
-import { onMounted, ref } from "vue";
-import type { RoomDetailInterface } from "@/api/search/types";
-import { useMap } from "@/hooks/useMap";
-import poiMarkerRed from "@/assets/poi-marker-red.png";
-import ApartmentCard from "@/components/ApartmentCard/ApartmentCard.vue";
-import { useRouter, useRoute } from "vue-router";
-const router = useRouter();
-const route = useRoute();
-// 房间的详情信息
-const roomDetailInfo = ref<RoomDetailInterface>({} as RoomDetailInterface);
-// 获取房间的详情信息
-const getRoomDetailHandle = async () => {
-  const { data } = await getRoomDetailById(route.query.id as string);
-  roomDetailInfo.value = data;
-};
-//#region <高德地图相关>
-// 地图实例
-const { AMap, initMap } = useMap();
-function initMapPage(opts?: { lng: number; lat: number }) {
-  console.log("opts", opts);
-  console.log("AMap", AMap.value);
-  const map = new AMap.value.Map("container", {
-    zoom: 19, //初始地图级别
-    center: [opts?.lng, opts?.lat], //初始地图中心点
-    showIndoorMap: false //关闭室内地图
-  });
-  const icon = new AMap.value.Icon({
-    size: new AMap.value.Size(25, 34), // 图标尺寸
-    image: poiMarkerRed, // Icon的图像
-    imageSize: new AMap.value.Size(25, 34)
-  });
-  const marker = new AMap.value.Marker({
-    icon: icon,
-    position: [opts?.lng, opts?.lat],
-    anchor: "bottom-center"
-  });
-  map.add(marker);
-  map.setFitView();
-}
-// 预约看房
-const appointmentToViewHandle = () => {
-  console.log("appointmentToViewHandle");
-  router.push({
-    path: "/appointment",
-    query: { apartmentId: roomDetailInfo.value.apartmentId }
-  });
-};
-//#endregion
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { getRoomDetailById } from '@/api/search'
+import type { RoomDetailVo } from '@/api/search/types'
+import PageLoading from '@/components/PageLoading/PageLoading.vue'
+
+const route = useRoute()
+const router = useRouter()
+
+const room = ref<RoomDetailVo | null>(null)
+const loading = ref(true)
+
 onMounted(async () => {
-  await getRoomDetailHandle();
-  console.log(roomDetailInfo.value.apartmentItemVo.longitude);
-  await initMap();
-  initMapPage({
-    lng: +roomDetailInfo.value.apartmentItemVo.longitude,
-    lat: +roomDetailInfo.value.apartmentItemVo.latitude
-  });
-});
+  const id = Number(route.query.id)
+  if (!id) return
+  try {
+    const { data } = await getRoomDetailById(id)
+    room.value = data
+  } finally {
+    loading.value = false
+  }
+})
+
+function goAppointment() {
+  if (room.value) {
+    router.push(`/appointment?apartmentId=${room.value.apartmentId}`)
+  }
+}
+
+function goApartment() {
+  if (room.value?.apartmentItemVo) {
+    router.push(`/apartmentDetail?id=${room.value.apartmentItemVo.id}`)
+  }
+}
 </script>
 
-<style scoped lang="less">
-.base-info-title {
-  //background-color: var(--van-primary-background-color);
-  font-weight: bold;
-  //color: white;
+<style lang="less" scoped>
+.room-detail-page {
+  padding-bottom: 80px;
+}
+
+.room-swipe {
+  position: relative;
+
+  .swipe-indicator {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+}
+
+.room-basic {
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 10px;
+
+    .price {
+      color: #ee0a24;
+      em {
+        font-size: 16px;
+        font-style: normal;
+      }
+      font-size: 26px;
+      font-weight: 700;
+
+      .unit {
+        font-size: 13px;
+        font-weight: 400;
+      }
+    }
+
+    .room-num {
+      font-size: 14px;
+      color: #969799;
+    }
+  }
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #323233;
+  margin-bottom: 10px;
+  padding-left: 4px;
+  border-left: 3px solid #1989fa;
+}
+
+.attr-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #323233;
+}
+
+.fee-list {
+  .fee-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .fee-name {
+    font-size: 14px;
+    color: #323233;
+  }
+
+  .fee-unit {
+    font-size: 13px;
+    color: #969799;
+  }
+}
+
+.payment-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .payment-name {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .payment-info {
+    font-size: 13px;
+    color: #969799;
+  }
+}
+
+.apartment-card {
+  cursor: pointer;
+
+  .apartment-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .apartment-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .apartment-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .apartment-addr {
+    font-size: 12px;
+    color: #969799;
+    margin-bottom: 2px;
+  }
+
+  .apartment-phone {
+    font-size: 12px;
+    color: #1989fa;
+  }
+}
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 16px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  background: #fff;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
 }
 </style>

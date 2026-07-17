@@ -1,19 +1,14 @@
-import { createApp } from "vue";
-import { store } from "./store";
-// normalize.css
-import "normalize.css/normalize.css";
-// 引入样式
-import "./styles/index.ts";
-// svg icon
-import "virtual:svg-icons-register";
+import { createApp } from 'vue'
+import App from './App.vue'
+import pinia from '@/store'
+import router from '@/router'
+import 'normalize.css'
+import 'vant/lib/index.css'
+import './styles/index.less'
+import './styles/tailwind.css'
 
-import App from "./App.vue";
-import router from "./router";
-// 引入指令
-import directives from "@/directives";
-const app = createApp(App);
-app.use(store);
-app.use(router);
-app.use(directives);
+const app = createApp(App)
 
-app.mount("#app");
+app.use(pinia)
+app.use(router)
+app.mount('#app')

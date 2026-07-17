@@ -1,35 +1,23 @@
-import { defineStore } from "pinia";
-import { store } from "@/store";
+import { defineStore } from 'pinia'
 
-const darkModeKey = "__dark_mode__";
-const isDarkMode = () => {
-  const darkMode = window.localStorage.getItem(darkModeKey);
-  if (darkMode) {
-    return darkMode === "true";
-  } else {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  }
-};
+interface DarkModeState {
+  darkMode: boolean
+}
 
 export const useDarkModeStore = defineStore({
-  id: "dark-mode",
-  state: () => ({
-    darkMode: isDarkMode()
+  id: 'app-h5-dark-mode',
+  state: (): DarkModeState => ({
+    darkMode: false,
   }),
   actions: {
     toggleDarkMode() {
-      this.darkMode = !this.darkMode;
+      this.darkMode = !this.darkMode
       if (this.darkMode) {
-        document.documentElement.classList.add("dark");
-        window.localStorage.setItem(darkModeKey, "true");
+        document.documentElement.classList.add('dark')
       } else {
-        document.documentElement.classList.remove("dark");
-        window.localStorage.setItem(darkModeKey, "false");
+        document.documentElement.classList.remove('dark')
       }
-    }
-  }
-});
-
-export function useDarkModeStoreHook() {
-  return useDarkModeStore(store);
-}
+    },
+  },
+  persist: true,
+})
