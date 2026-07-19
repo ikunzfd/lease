@@ -3,7 +3,7 @@
     <NavBar />
     <div class="layout-content" :class="{ 'with-tabbar': showTabbar }">
       <router-view v-slot="{ Component }">
-        <keep-alive :include="['Search']">
+        <keep-alive :include="['Search', 'Group', 'MyRoom', 'Message', 'UserCenter']">
           <component :is="Component" />
         </keep-alive>
       </router-view>

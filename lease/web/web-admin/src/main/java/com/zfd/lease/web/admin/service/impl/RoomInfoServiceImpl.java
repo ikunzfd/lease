@@ -21,6 +21,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +69,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo>
     private RedisTemplate<String,Object> redisTemplate;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateRoom(RoomSubmitVo roomSubmitVo) {
         boolean isUpdate = roomSubmitVo.getId() != null;
         super.saveOrUpdate(roomSubmitVo);
@@ -191,6 +193,9 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo>
     public RoomDetailVo getRoomDetailById(Long id) {
         //1.查询RoomInfo
         RoomInfo roomInfo = roomInfoMapper.selectById(id);
+        if (roomInfo == null) {
+            return null;
+        }
         //2.查询所属公寓信息
         ApartmentInfo apartmentInfo = apartmentInfoMapper.selectById(roomInfo.getApartmentId());
         //3.查询graphInfoList
@@ -221,6 +226,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void removeRoomById(Long id) {
         //1.删除RoomInfo
         super.removeById(id);

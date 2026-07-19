@@ -30,7 +30,7 @@ const showNavBar = computed(() => {
 })
 
 const showBackArrow = computed(() => {
-  return route.path !== '/search'
+  return !tabPaths.includes(route.path)
 })
 
 const title = computed(() => {

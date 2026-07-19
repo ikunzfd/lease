@@ -18,6 +18,6 @@ public class DistrictInfo extends BaseEntity {
 
     @Schema(description = "所属城市id")
     @TableField(value = "city_id")
-    private Integer cityId;
+    private Long cityId;
 
 }

@@ -1,6 +1,6 @@
 import { useUserStore } from '@/store/modules/user'
 
-export function RESEETSTORE() {
+export function RESETSTORE() {
   const userStore = useUserStore()
   userStore.$reset()
 }

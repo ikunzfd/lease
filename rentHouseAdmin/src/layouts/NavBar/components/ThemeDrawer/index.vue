@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import mittBus from '@/utils/mittBus'
 import { DEFAULT_PRIMARY } from '@/config/config'
 import { useSettingsStore } from '@/store/modules/settings'
@@ -45,6 +45,10 @@ const themeConfig = computed(() => settingsStore.themeConfig)
 const drawerVisible = ref(false)
 mittBus.on('openThemeDrawer', () => {
   drawerVisible.value = true
+})
+
+onUnmounted(() => {
+  mittBus.off('openThemeDrawer')
 })
 </script>
 

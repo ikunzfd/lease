@@ -16,9 +16,9 @@ router.beforeEach((to, from, next) => {
 
   const userStore = useUserStore()
 
-  // 1. 访问登录页，有 token 就留在当前页
+  // 1. 访问登录页，有 token 就跳转到首页
   if (to.path === LOGIN_URL) {
-    if (userStore.token) return next(from.fullPath)
+    if (userStore.token) return next('/search')
     return next()
   }
 

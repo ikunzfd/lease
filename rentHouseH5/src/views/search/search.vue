@@ -171,6 +171,9 @@ async function selectProvince(p: RegionInfo) {
   selectedCity.value = null
   selectedDistrict.value = null
   districtList.value = []
+  delete queryParams.provinceId
+  delete queryParams.cityId
+  delete queryParams.districtId
   try {
     const { data } = await getCityList(p.id)
     cityList.value = data || []
@@ -180,6 +183,8 @@ async function selectProvince(p: RegionInfo) {
 async function selectCity(c: RegionInfo) {
   selectedCity.value = c
   selectedDistrict.value = null
+  delete queryParams.cityId
+  delete queryParams.districtId
   try {
     const { data } = await getDistrictList(c.id)
     districtList.value = data || []
@@ -210,6 +215,7 @@ function applyFilter() {
 }
 
 function onSearch() {
+  queryParams.searchText = searchText.value || undefined
   resetAndLoad()
 }
 

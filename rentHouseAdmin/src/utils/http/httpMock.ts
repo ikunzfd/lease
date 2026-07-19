@@ -52,7 +52,7 @@ service.interceptors.response.use(
   (response: AxiosResponse) => {
     const { data } = response
     // * 登陆失效（code == 203）
-    if (data.code === ResultEnum.EXPIRE) {
+    if (ResultEnum.EXPIRE.includes(data.code)) {
       RESEETSTORE()
       ElMessage.error(data.message || ResultEnum.ERRMESSAGE)
       router.replace(LOGIN_URL)

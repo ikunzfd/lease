@@ -132,7 +132,7 @@
           clearable
         />
       </el-form-item>
-      <el-form-item label="支付方式" prop="paymentTypeIds">
+      <el-form-item label="支付方式" prop="paymentTypeId">
         <el-select
           style="width: 100%"
           v-model="formData.paymentTypeId"
@@ -147,7 +147,7 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="可选租期" prop="leaseTermIds">
+      <el-form-item label="可选租期" prop="leaseTermId">
         <el-select
           style="width: 100%"
           v-model="formData.leaseTermId"
@@ -238,7 +238,25 @@ const formData = ref<AgreementInterface>({
 })
 // 表单验证规则
 const rules = reactive({
-  roomNumber: [{ required: true, message: '请输入房间号', trigger: 'blur' }],
+  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' },
+  ],
+  identificationNumber: [
+    { required: true, message: '请输入身份证号', trigger: 'blur' },
+  ],
+  leaseStartDate: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
+  leaseEndDate: [{ required: true, message: '请选择结束时间', trigger: 'change' }],
+  rent: [{ required: true, message: '请输入租金', trigger: 'blur' }],
+  deposit: [{ required: true, message: '请输入押金', trigger: 'blur' }],
+  paymentTypeId: [{ required: true, message: '请选择支付方式', trigger: 'change' }],
+  leaseTermId: [{ required: true, message: '请选择租期', trigger: 'change' }],
+  provinceId: [{ required: true, message: '请选择省份', trigger: 'change' }],
+  cityId: [{ required: true, message: '请选择城市', trigger: 'change' }],
+  districtId: [{ required: true, message: '请选择区县', trigger: 'change' }],
+  apartmentId: [{ required: true, message: '请选择公寓', trigger: 'change' }],
+  roomId: [{ required: true, message: '请选择房间', trigger: 'change' }],
 })
 //#endregion
 //#region <省市区查询相关>

@@ -149,13 +149,13 @@ const actionButtons = computed<ActionButton[]>(() => {
       label: '确认签约',
       type: 'primary',
       action: () => updateStatus(id, 2, '确认签约'),
-      loading: btnLoading.value === 'confirm',
+      loading: btnLoading.value === '确认签约',
     })
     btns.push({
       label: '取消',
       type: 'default',
       action: () => updateStatus(id, 3, '取消租约'),
-      loading: btnLoading.value === 'cancel',
+      loading: btnLoading.value === '取消租约',
     })
   } else if (code === 2) {
     // 已签约
@@ -163,13 +163,13 @@ const actionButtons = computed<ActionButton[]>(() => {
       label: '续约',
       type: 'primary',
       action: () => updateStatus(id, 7, '申请续约'),
-      loading: btnLoading.value === 'renew',
+      loading: btnLoading.value === '申请续约',
     })
     btns.push({
       label: '提前退租',
       type: 'warning',
       action: () => updateStatus(id, 5, '申请退租'),
-      loading: btnLoading.value === 'withdraw',
+      loading: btnLoading.value === '申请退租',
     })
   } else if (code === 5) {
     // 退租待确认
@@ -177,7 +177,7 @@ const actionButtons = computed<ActionButton[]>(() => {
       label: '确认退租',
       type: 'primary',
       action: () => updateStatus(id, 6, '确认退租'),
-      loading: btnLoading.value === 'confirmWithdraw',
+      loading: btnLoading.value === '确认退租',
     })
   }
 

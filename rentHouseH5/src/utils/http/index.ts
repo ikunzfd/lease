@@ -4,9 +4,8 @@ import { useUserStore } from '@/store/modules/user'
 import { ResultEnum } from '@/enums/httpEnums'
 import { ResultData } from './type'
 import { LOGIN_URL } from '@/config/config'
-import { RESEETSTORE } from '@/utils/reset'
+import { RESETSTORE } from '@/utils/reset'
 import router from '@/router'
-import NProgress from '@/config/nprogress'
 
 const service: AxiosInstance = axios.create({
   baseURL: import.meta.env.PROD ? import.meta.env.VITE_APP_BASE_URL : '/',
@@ -19,13 +18,11 @@ service.interceptors.request.use(
     const userStore = useUserStore()
     const token = userStore.token
     if (token) {
-      config.headers['access-token'] = token
+      config.headers.set('access-token', token)
     }
-    NProgress.start()
     return config
   },
   (error: AxiosError) => {
-    NProgress.done()
     showToast(error.message)
     return Promise.reject(error)
   },
@@ -34,12 +31,11 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse) => {
-    NProgress.done()
     const { data } = response
 
     // token 失效
     if (ResultEnum.EXPIRE.includes(data.code)) {
-      RESEETSTORE()
+      RESETSTORE()
       showToast(data.message || '登录已过期，请重新登录')
       router.replace(LOGIN_URL)
       return Promise.reject(data)
@@ -54,7 +50,6 @@ service.interceptors.response.use(
     return data
   },
   (error: AxiosError) => {
-    NProgress.done()
     const status = error.response?.status
     let message = '网络连接故障'
     switch (status) {

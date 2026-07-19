@@ -18,6 +18,6 @@ public class CityInfo extends BaseEntity {
 
     @Schema(description = "所属省份id")
     @TableField(value = "province_id")
-    private Integer provinceId;
+    private Long provinceId;
 
 }

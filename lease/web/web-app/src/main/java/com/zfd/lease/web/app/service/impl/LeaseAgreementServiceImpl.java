@@ -1,5 +1,8 @@
 package com.zfd.lease.web.app.service.impl;
 
+import com.zfd.lease.common.login.LoginUserHolder;
+import com.zfd.lease.common.exception.LeaseException;
+import com.zfd.lease.common.result.ResultCodeEnum;
 import com.zfd.lease.model.entity.*;
 import com.zfd.lease.model.enums.ItemType;
 import com.zfd.lease.web.app.mapper.*;
@@ -48,6 +51,11 @@ public class LeaseAgreementServiceImpl extends ServiceImpl<LeaseAgreementMapper,
         LeaseAgreement leaseAgreement = leaseAgreementMapper.selectById(id);
         if (leaseAgreement == null) {
             return null;
+        }
+        // 验证数据所有权
+        String phone = LoginUserHolder.getLoginUser().getUsername();
+        if (!leaseAgreement.getPhone().equals(phone)) {
+            throw new LeaseException(ResultCodeEnum.ILLEGAL_REQUEST);
         }
         //2.查询公寓信息
         ApartmentInfo apartmentInfo = apartmentInfoMapper.selectById(leaseAgreement.getApartmentId());

@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { showToast } from 'vant'
 import { useUserStore } from '@/store/modules/user'
@@ -86,6 +86,13 @@ const agreed = ref(false)
 const loading = ref(false)
 const countdown = ref(0)
 let timer: ReturnType<typeof setInterval> | null = null
+
+onUnmounted(() => {
+  if (timer) {
+    clearInterval(timer)
+    timer = null
+  }
+})
 
 const isPhoneValid = computed(() => /^1[3-9]\d{9}$/.test(form.phone))
 
@@ -132,7 +139,7 @@ async function handleLogin() {
     })
     showToast('登录成功')
     const redirect = (route.query.redirect as string) || '/search'
-    router.replace(redirect)
+    router.replace(redirect === '/login' ? '/search' : redirect)
   } catch {
     // 错误已在拦截器中处理
   } finally {

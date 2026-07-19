@@ -20,6 +20,7 @@ import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class ApartmentInfoServiceImpl extends ServiceImpl<ApartmentInfoMapper, A
     private RoomInfoMapper roomInfoMapper;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateApartment(ApartmentSubmitVo apartmentSubmitVo) {
         boolean isUpdate = apartmentSubmitVo.getId()!=null;
         super.saveOrUpdate(apartmentSubmitVo);
@@ -167,6 +169,7 @@ public class ApartmentInfoServiceImpl extends ServiceImpl<ApartmentInfoMapper, A
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void removeApartmentById(Long id) {
 
         LambdaQueryWrapper<RoomInfo> roomInfoQueryWrapper = new LambdaQueryWrapper<>();
@@ -182,7 +185,7 @@ public class ApartmentInfoServiceImpl extends ServiceImpl<ApartmentInfoMapper, A
 
         //1.删除图片列表
         LambdaQueryWrapper<GraphInfo> graphInfoQueryWrapper = new LambdaQueryWrapper<>();
-        graphInfoQueryWrapper.eq(GraphInfo::getItemId, ItemType.APARTMENT);
+        graphInfoQueryWrapper.eq(GraphInfo::getItemType, ItemType.APARTMENT);
         graphInfoQueryWrapper.eq(GraphInfo::getItemId,id);
         graphInfoService.remove(graphInfoQueryWrapper);
 

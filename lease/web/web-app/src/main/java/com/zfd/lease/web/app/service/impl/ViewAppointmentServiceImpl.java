@@ -1,5 +1,8 @@
 package com.zfd.lease.web.app.service.impl;
 
+import com.zfd.lease.common.exception.LeaseException;
+import com.zfd.lease.common.login.LoginUserHolder;
+import com.zfd.lease.common.result.ResultCodeEnum;
 import com.zfd.lease.model.entity.ViewAppointment;
 import com.zfd.lease.web.app.mapper.ViewAppointmentMapper;
 import com.zfd.lease.web.app.service.ApartmentInfoService;
@@ -39,6 +42,14 @@ public class ViewAppointmentServiceImpl extends ServiceImpl<ViewAppointmentMappe
     public AppointmentDetailVo getDetailById(Long id) {
 
         ViewAppointment viewAppointment = viewAppointmentMapper.selectById(id);
+        if (viewAppointment == null) {
+            return null;
+        }
+        // 验证数据所有权
+        Long userId = LoginUserHolder.getLoginUser().getUserId();
+        if (!viewAppointment.getUserId().equals(userId)) {
+            throw new LeaseException(ResultCodeEnum.ILLEGAL_REQUEST);
+        }
 
         ApartmentItemVo apartmentItemVo = apartmentInfoService.selectApartmentItemVoById(viewAppointment.getApartmentId());
 

@@ -38,7 +38,6 @@ export default defineConfig((config) => {
     css: {
       preprocessorOptions: {
         scss: {
-          javascriptEnabled: true,
           additionalData: '@import "./src/styles/variable.scss";',
         },
       },

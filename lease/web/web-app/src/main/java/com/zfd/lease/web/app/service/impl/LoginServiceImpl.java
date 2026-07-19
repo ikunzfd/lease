@@ -35,22 +35,25 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void getCode(String phone) {
         String code = CodeUtil.getRandomCode(6);
-        String key = RedisConstant.APP_LOGIN_PREFIX+phone;
+        String key = RedisConstant.APP_LOGIN_PREFIX + phone;
 
-        Boolean hasKey = redisTemplate.hasKey(key);
-        if (hasKey){
+        // 原子操作：使用 SET NX 防止并发绕过频率限制
+        Boolean success = redisTemplate.opsForValue()
+                .setIfAbsent(key, code, RedisConstant.APP_LOGIN_CODE_TTL_SEC, TimeUnit.SECONDS);
+
+        if (Boolean.TRUE.equals(success)) {
+            try {
+                smsService.sendCode(phone, code);
+            } catch (Exception e) {
+                redisTemplate.delete(key);
+                throw new RuntimeException(e);
+            }
+        } else {
             Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
-            if (RedisConstant.APP_LOGIN_CODE_TTL_SEC-ttl<RedisConstant.APP_LOGIN_CODE_RESEND_TIME_SEC){
+            if (ttl != null && RedisConstant.APP_LOGIN_CODE_TTL_SEC - ttl < RedisConstant.APP_LOGIN_CODE_RESEND_TIME_SEC) {
                 throw new LeaseException(ResultCodeEnum.APP_SEND_SMS_TOO_OFTEN);
             }
         }
-
-        try {
-            smsService.sendCode(phone,code);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        redisTemplate.opsForValue().set(key,code,RedisConstant.APP_LOGIN_CODE_TTL_SEC, TimeUnit.SECONDS);
     }
 
     @Override
@@ -96,7 +99,9 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public UserInfoVo getLoginUserById(Long userId) {
         UserInfo userInfo = userInfoMapper.selectById(userId);
-        UserInfoVo userInfoVo = new UserInfoVo(userInfo.getNickname(), userInfo.getAvatarUrl());
-        return userInfoVo;
+        if (userInfo == null) {
+            return null;
+        }
+        return new UserInfoVo(userInfo.getNickname(), userInfo.getAvatarUrl());
     }
 }

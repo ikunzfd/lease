@@ -165,8 +165,8 @@ async function handleSubmit() {
     })
     showToast('预约成功')
     router.back()
-  } catch (err: any) {
-    showToast(err?.data?.message || err?.message || '预约失败')
+  } catch {
+    // 错误已在拦截器中处理
   } finally {
     submitting.value = false
   }

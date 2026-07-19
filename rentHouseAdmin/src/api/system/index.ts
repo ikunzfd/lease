@@ -99,7 +99,7 @@ export function getUserRolesListByUserId(userId: string | number) {
  */
 export function batchSysUser(ids: string[]) {
   return http.delete<PageResponseInterface<any>>(
-    `/admin/system/sysRole/batchRemove`,
+    `/admin/system/user/batchRemove`,
     ids,
   )
 }

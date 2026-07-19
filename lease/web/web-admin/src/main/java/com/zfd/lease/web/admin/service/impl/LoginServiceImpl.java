@@ -85,6 +85,9 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public SystemUserInfoVo getLoginUserInfoById(Long userId) {
         SystemUser systemUser = systemUserMapper.selectById(userId);
+        if (systemUser == null) {
+            throw new LeaseException(ResultCodeEnum.ADMIN_ACCOUNT_NOT_EXIST_ERROR);
+        }
         SystemUserInfoVo systemUserInfoVo = new SystemUserInfoVo();
         systemUserInfoVo.setName(systemUser.getName());
         systemUserInfoVo.setAvatarUrl(systemUser.getAvatarUrl());

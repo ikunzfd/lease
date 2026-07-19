@@ -9,8 +9,6 @@ import { defineStore } from 'pinia'
 import { getUserInfo } from '@/api/user'
 import type { UserState } from './model/userModel'
 import type { UserInfo } from '@/api/user/types'
-import { RESEETSTORE } from '@/utils/reset'
-
 export const useUserStore = defineStore({
   id: 'app-user',
   state: (): UserState => ({
@@ -28,7 +26,8 @@ export const useUserStore = defineStore({
     },
     async Logout() {
       // await logout()
-      RESEETSTORE()
+      this.$reset()
+      localStorage.removeItem('app-user')
     },
   },
   // 设置为true，缓存state

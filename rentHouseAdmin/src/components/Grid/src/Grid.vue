@@ -54,22 +54,16 @@ onDeactivated(() => {
 // 监听屏幕变化
 const resize = (e: UIEvent) => {
   let width = (e.target as Window).innerWidth
-  switch (!!width) {
-    case width < 768:
-      breakPoint.value = 'xs'
-      break
-    case width >= 768 && width < 992:
-      breakPoint.value = 'sm'
-      break
-    case width >= 992 && width < 1200:
-      breakPoint.value = 'md'
-      break
-    case width >= 1200 && width < 1920:
-      breakPoint.value = 'lg'
-      break
-    case width >= 1920:
-      breakPoint.value = 'xl'
-      break
+  if (width < 768) {
+    breakPoint.value = 'xs'
+  } else if (width >= 768 && width < 992) {
+    breakPoint.value = 'sm'
+  } else if (width >= 992 && width < 1200) {
+    breakPoint.value = 'md'
+  } else if (width >= 1200 && width < 1920) {
+    breakPoint.value = 'lg'
+  } else {
+    breakPoint.value = 'xl'
   }
 }
 

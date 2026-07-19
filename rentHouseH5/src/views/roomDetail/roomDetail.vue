@@ -1,5 +1,17 @@
 <template>
-  <div class="room-detail-page" v-if="room">
+  <div class="room-detail-page">
+    <!-- 加载中 -->
+    <PageLoading v-if="loading" type="detail" />
+
+    <!-- 错误状态 -->
+    <EmptyState
+      v-else-if="!room"
+      description="房间信息加载失败"
+      action-text="返回上一页"
+      @action="router.back"
+    />
+
+    <template v-else>
     <!-- 图片轮播 -->
     <van-swipe :autoplay="3000" indicator-color="#1989fa" class="room-swipe">
       <van-swipe-item v-for="(img, idx) in room.graphVoList" :key="idx">
@@ -128,9 +140,7 @@
         预约看房
       </van-button>
     </div>
-
-    <!-- 加载中 -->
-    <PageLoading v-if="loading" type="detail" />
+    </template>
   </div>
 </template>
 

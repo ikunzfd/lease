@@ -79,9 +79,6 @@ export const useTabsBarStore = defineStore({
           if (!v.meta) return
           return v.path !== path || v.meta.affix
         })
-        this.cachedViews = this.cachedViews.filter((v) => {
-          return v.path !== path || v.meta.affix
-        })
         resolve([...this.visitedViews])
       })
     },
@@ -99,15 +96,17 @@ export const useTabsBarStore = defineStore({
       this.visitedViews = this.visitedViews.filter(
         (v) => v.meta && v.meta.affix,
       )
-      this.cachedViews = this.visitedViews.filter((v) => v.meta && v.meta.affix)
+      this.cachedViews = this.visitedViews
+        .filter((v) => v.meta && v.meta.keepAlive && v.name)
+        .map((v) => v.name as string)
     },
     delOtherViews(path: string) {
       this.visitedViews = this.visitedViews.filter((item) => {
         return item.path === path || (item.meta && item.meta.affix)
       })
-      this.cachedViews = this.visitedViews.filter((item) => {
-        return item.path === path || (item.meta && item.meta.affix)
-      })
+      this.cachedViews = this.visitedViews
+        .filter((item) => item.meta && item.meta.keepAlive && item.name)
+        .map((item) => item.name as string)
     },
     goHome() {
       this.activeTabsValue = '/index'

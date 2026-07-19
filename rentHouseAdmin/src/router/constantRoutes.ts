@@ -63,6 +63,7 @@ export const staticRoutes: RouteRecordRaw[] = [
       },
       {
         path: '/system/user',
+        name: 'SystemUser',
         component: () => import('@/views/system/user/user.vue'),
         meta: {
           title: '用户管理',
@@ -74,6 +75,7 @@ export const staticRoutes: RouteRecordRaw[] = [
       },
       {
         path: '/system/post',
+        name: 'SystemPost',
         component: () => import('@/views/system/post/post.vue'),
         meta: {
           title: '岗位管理',
@@ -85,6 +87,7 @@ export const staticRoutes: RouteRecordRaw[] = [
       },
       {
         path: '/apartmentManagement/apartmentManagement/apartmentManagement',
+        name: 'ApartmentManagement',
         component: () =>
           import(
             '@/views/apartmentManagement/apartmentManagement/apartmentManagement.vue'
@@ -114,6 +117,7 @@ export const staticRoutes: RouteRecordRaw[] = [
       },
       {
         path: '/apartmentManagement/roomManagement/roomManagement',
+        name: 'RoomManagement',
         component: () =>
           import(
             '@/views/apartmentManagement/roomManagement/roomManagement.vue'
@@ -142,6 +146,7 @@ export const staticRoutes: RouteRecordRaw[] = [
       },
       {
         path: '/apartmentManagement/attributeManagement/attributeManagement',
+        name: 'AttributeManagement',
         component: () =>
           import(
             '@/views/apartmentManagement/attributeManagement/attributeManagement.vue'
@@ -156,6 +161,7 @@ export const staticRoutes: RouteRecordRaw[] = [
       },
       {
         path: '/rentManagement/appointment/appointment',
+        name: 'AppointmentManagement',
         component: () =>
           import('@/views/rentManagement/appointment/appointment.vue'),
         meta: {
@@ -168,6 +174,7 @@ export const staticRoutes: RouteRecordRaw[] = [
       },
       {
         path: '/agreementManagement/agreement/agreement',
+        name: 'AgreementManagement',
         component: () =>
           import('@/views/rentManagement/agreement/agreement.vue'),
         meta: {
@@ -179,7 +186,7 @@ export const staticRoutes: RouteRecordRaw[] = [
         children: [],
       },
       {
-        path: '/rentManagement/agreement/addOrEditAgreement',
+        path: '/agreementManagement/agreement/addOrEditAgreement',
         component: () =>
           import(
             '@/views/rentManagement/agreement/components/addOrEditAgreement.vue'
@@ -194,6 +201,7 @@ export const staticRoutes: RouteRecordRaw[] = [
       },
       {
         path: '/userManagement/userManagement',
+        name: 'UserManagement',
         component: () => import('@/views/userManagement/userManagement.vue'),
         meta: {
           title: '用户管理',
