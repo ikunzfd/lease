@@ -126,12 +126,12 @@ const selectedDistrict = ref<RegionInfo | null>(null)
 
 const rentRanges = [
   { label: '不限', min: undefined, max: undefined },
-  { label: '1000元以下', min: undefined, max: 1000 },
+  { label: '1000元以下', min: 0, max: 1000 },
   { label: '1000-1500元', min: 1000, max: 1500 },
   { label: '1500-2000元', min: 1500, max: 2000 },
   { label: '2000-2500元', min: 2000, max: 2500 },
   { label: '2500-3000元', min: 2500, max: 3000 },
-  { label: '3000元以上', min: 3000, max: undefined },
+  { label: '3000元以上', min: 3000, max: 99999 },
 ]
 const activeRentRange = ref('不限')
 

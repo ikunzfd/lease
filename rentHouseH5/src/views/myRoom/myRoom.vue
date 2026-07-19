@@ -36,8 +36,8 @@
             </div>
           </div>
           <div class="header-right">
-            <van-tag :type="statusType(item.leaseStatus?.code)" size="medium">
-              {{ item.leaseStatus?.name }}
+            <van-tag :type="(statusType(item.leaseStatus) as any)" size="medium">
+              {{ LeaseStatusMap[item.leaseStatus] || '未知' }}
             </van-tag>
             <span class="rent">¥{{ item.rent }}/月</span>
           </div>
@@ -52,6 +52,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getMyAgreementList } from '@/api/search'
 import type { AgreementItemVo } from '@/api/search/types'
+import { LeaseStatusMap } from '@/enums/constEnums'
 import EmptyState from '@/components/EmptyState/EmptyState.vue'
 
 const router = useRouter()

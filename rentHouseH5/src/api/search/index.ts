@@ -84,7 +84,7 @@ export function getAgreementDetailById(id: number) {
 }
 
 export function updateAgreementStatusById(id: number, leaseStatus: number) {
-  return http.post<void>('/app/agreement/updateStatusById', null, {
+  return http.post<void>('/app/agreement/updateStatusById', undefined, {
     params: { id, leaseStatus },
   })
 }

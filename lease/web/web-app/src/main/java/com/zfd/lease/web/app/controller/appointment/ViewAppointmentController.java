@@ -4,6 +4,7 @@ package com.zfd.lease.web.app.controller.appointment;
 import com.zfd.lease.common.login.LoginUserHolder;
 import com.zfd.lease.common.result.Result;
 import com.zfd.lease.model.entity.ViewAppointment;
+import com.zfd.lease.model.enums.AppointmentStatus;
 import com.zfd.lease.web.app.service.ViewAppointmentService;
 import com.zfd.lease.web.app.vo.appointment.AppointmentDetailVo;
 import com.zfd.lease.web.app.vo.appointment.AppointmentItemVo;
@@ -26,6 +27,7 @@ public class ViewAppointmentController {
     @PostMapping("/saveOrUpdate")
     public Result saveOrUpdate(@RequestBody ViewAppointment viewAppointment) {
         viewAppointment.setUserId(LoginUserHolder.getLoginUser().getUserId());
+        viewAppointment.setAppointmentStatus(AppointmentStatus.WAITING);
         service.saveOrUpdate(viewAppointment);
         return Result.ok();
     }

@@ -11,6 +11,8 @@ declare module '*.svg' {
   export default content
 }
 
+declare module 'nprogress'
+
 interface ImportMetaEnv {
   readonly VITE_APP_BASE_URL: string
   readonly VITE_APP_TITLE: string

@@ -149,7 +149,7 @@ export interface AppointmentItemVo {
   apartmentName: string
   graphVoList: GraphVo[]
   appointmentTime: string
-  appointmentStatus: { code: number; name: string }
+  appointmentStatus: number
 }
 
 /** 预约详情 */
@@ -181,10 +181,10 @@ export interface AgreementItemVo {
   roomGraphVoList: GraphVo[]
   apartmentName: string
   roomNumber: string
-  leaseStatus: { code: number; name: string }
+  leaseStatus: number
   leaseStartDate: string
   leaseEndDate: string
-  sourceType: { code: number; name: string }
+  sourceType: number
   rent: number
 }
 
@@ -202,8 +202,8 @@ export interface AgreementDetailVo {
   rent: number
   deposit: number
   paymentTypeId: number
-  status: { code: number; name: string }
-  sourceType: { code: number; name: string }
+  status: number
+  sourceType: number
   additionalInfo: string
   apartmentName: string
   apartmentGraphVoList: GraphVo[]

@@ -46,7 +46,7 @@
           v-for="fac in apartment.facilityInfoList"
           :key="fac.id"
           :text="fac.name"
-          icon="checked"
+          :icon="getFacilityIcon(fac.icon)"
         />
       </van-grid>
     </div>
@@ -93,6 +93,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import { getApartmentDetailById, getRoomListByApartmentId } from '@/api/search'
 import type { ApartmentDetailVo, RoomItemVo } from '@/api/search/types'
+import { getFacilityIcon } from '@/enums/constEnums'
 import RoomCard from '@/components/RoomCard/RoomCard.vue'
 import EmptyState from '@/components/EmptyState/EmptyState.vue'
 import PageLoading from '@/components/PageLoading/PageLoading.vue'

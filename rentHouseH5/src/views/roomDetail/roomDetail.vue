@@ -34,9 +34,17 @@
     <div class="card" v-if="room.attrValueVoList?.length">
       <div class="section-title">基本信息</div>
       <van-grid :column-num="3" :border="false">
-        <van-grid-item v-for="attr in room.attrValueVoList" :key="attr.id" :text="attr.attrKeyName">
-          <template #icon>
-            <span class="attr-value">{{ attr.name }}</span>
+        <van-grid-item
+          v-for="attr in room.attrValueVoList"
+          :key="attr.id"
+          :text="attr.attrKeyName"
+          :icon="getAttrIcon(attr.attrKeyName)"
+        >
+          <template #text>
+            <div class="attr-item">
+              <span class="attr-key">{{ attr.attrKeyName }}</span>
+              <span class="attr-value">{{ attr.name }}</span>
+            </div>
           </template>
         </van-grid-item>
       </van-grid>
@@ -50,7 +58,7 @@
           v-for="fac in room.facilityInfoList"
           :key="fac.id"
           :text="fac.name"
-          icon="checked"
+          :icon="getFacilityIcon(fac.icon)"
         />
       </van-grid>
     </div>
@@ -131,6 +139,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getRoomDetailById } from '@/api/search'
 import type { RoomDetailVo } from '@/api/search/types'
+import { getFacilityIcon } from '@/enums/constEnums'
 import PageLoading from '@/components/PageLoading/PageLoading.vue'
 
 const route = useRoute()
@@ -152,7 +161,7 @@ onMounted(async () => {
 
 function goAppointment() {
   if (room.value) {
-    router.push(`/appointment?apartmentId=${room.value.apartmentId}`)
+    router.push(`/appointment?apartmentId=${room.value.apartmentId}&roomId=${room.value.id}`)
   }
 }
 
@@ -160,6 +169,24 @@ function goApartment() {
   if (room.value?.apartmentItemVo) {
     router.push(`/apartmentDetail?id=${room.value.apartmentItemVo.id}`)
   }
+}
+
+// 根据属性名称映射 Vant 图标
+function getAttrIcon(attrKeyName: string): string {
+  const iconMap: Record<string, string> = {
+    '面积': 'chart-trending-o',
+    '楼层': 'smile-comment-o',
+    '朝向': 'eye-o',
+    '户型': 'home-o',
+    '装修': 'brush-o',
+    '配置': 'gem-o',
+    '类型': 'label-o',
+    '付款方式': 'gold-coin-o',
+  }
+  for (const [key, val] of Object.entries(iconMap)) {
+    if (attrKeyName.includes(key)) return val
+  }
+  return 'records'
 }
 </script>
 
@@ -221,10 +248,22 @@ function goApartment() {
   border-left: 3px solid #1989fa;
 }
 
-.attr-value {
-  font-size: 16px;
-  font-weight: 600;
-  color: #323233;
+.attr-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+
+  .attr-key {
+    font-size: 12px;
+    color: #969799;
+  }
+
+  .attr-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #323233;
+  }
 }
 
 .fee-list {

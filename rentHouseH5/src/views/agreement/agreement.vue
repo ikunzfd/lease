@@ -54,11 +54,11 @@
         <van-cell title="支付方式" :value="detail.paymentTypeName" />
         <van-cell title="起租日期" :value="detail.leaseStartDate" />
         <van-cell title="到期日期" :value="detail.leaseEndDate" />
-        <van-cell title="租约来源" :value="detail.sourceType?.name" />
+        <van-cell title="租约来源" :value="LeaseSourceTypeMap[detail.sourceType] || '未知'" />
         <van-cell title="状态">
           <template #value>
-            <van-tag :type="statusType(detail.status?.code)" size="small">
-              {{ detail.status?.name }}
+            <van-tag :type="(statusType(detail.status) as any)" size="medium">
+              {{ LeaseStatusMap[detail.status] || '未知' }}
             </van-tag>
           </template>
         </van-cell>
@@ -106,6 +106,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { showToast, showConfirmDialog } from 'vant'
 import { getAgreementDetailById, updateAgreementStatusById } from '@/api/search'
 import type { AgreementDetailVo } from '@/api/search/types'
+import { LeaseStatusMap, LeaseSourceTypeMap } from '@/enums/constEnums'
 import PageLoading from '@/components/PageLoading/PageLoading.vue'
 
 const route = useRoute()
@@ -137,8 +138,8 @@ interface ActionButton {
 
 const actionButtons = computed<ActionButton[]>(() => {
   if (!detail.value) return []
-  const code = detail.value.status?.code
-  const id = detail.value.id
+  const code = detail.value?.status
+  const id = detail.value?.id
 
   const btns: ActionButton[] = []
 

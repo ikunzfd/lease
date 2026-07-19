@@ -1,13 +1,12 @@
 <template>
   <div class="room-card card" @click="handleClick">
     <van-image
-      v-if="firstImage"
+      v-if="room.graphVoList?.length"
       :src="firstImage"
       width="100%"
       height="180px"
       fit="cover"
       radius="8px"
-      lazy-load
     >
       <template #error>
         <div class="image-placeholder">
@@ -15,6 +14,9 @@
         </div>
       </template>
     </van-image>
+    <div v-else class="image-placeholder">
+      <van-icon name="photo-o" size="40" color="#dcdee0" />
+    </div>
     <div class="room-info">
       <div class="room-header">
         <span class="room-number">{{ room.roomNumber }}</span>
@@ -30,7 +32,7 @@
           :key="label.id"
           plain
           type="primary"
-          size="small"
+          size="medium"
           class="mr-1"
         >
           {{ label.name }}

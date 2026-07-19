@@ -24,8 +24,8 @@
               {{ item.appointmentTime }}
             </div>
           </div>
-          <van-tag :type="statusType(item.appointmentStatus?.code)" size="medium">
-            {{ item.appointmentStatus?.name }}
+          <van-tag :type="statusType(item.appointmentStatus) as any" size="medium">
+            {{ AppointmentStatusMap[item.appointmentStatus] || '未知' }}
           </van-tag>
         </div>
       </div>
@@ -37,6 +37,7 @@
 import { ref, onMounted } from 'vue'
 import { getMyAppointmentList } from '@/api/search'
 import type { AppointmentItemVo } from '@/api/search/types'
+import { AppointmentStatusMap } from '@/enums/constEnums'
 import EmptyState from '@/components/EmptyState/EmptyState.vue'
 
 const list = ref<AppointmentItemVo[]>([])
