@@ -7,7 +7,7 @@
         </EmptyState>
       </div>
 
-      <div v-for="item in list" :key="item.id" class="card appointment-card">
+      <div v-for="item in list" :key="item.id" class="card appointment-card" @click="goDetail(item.id)">
         <div class="card-header">
           <van-image
             v-if="item.graphVoList?.[0]?.url"
@@ -35,14 +35,20 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { getMyAppointmentList } from '@/api/search'
 import type { AppointmentItemVo } from '@/api/search/types'
 import { AppointmentStatusMap } from '@/enums/constEnums'
 import EmptyState from '@/components/EmptyState/EmptyState.vue'
 
+const router = useRouter()
 const list = ref<AppointmentItemVo[]>([])
 const loading = ref(true)
 const refreshing = ref(false)
+
+function goDetail(id: number) {
+  router.push(`/appointmentDetail?id=${id}`)
+}
 
 function statusType(code: number): string {
   switch (code) {

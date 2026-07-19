@@ -161,7 +161,7 @@ export interface AppointmentDetailVo {
   apartmentId: number
   appointmentTime: string
   additionalInfo: string
-  appointmentStatus: { code: number; name: string }
+  appointmentStatus: number
   apartmentItemVo: ApartmentItemVo
 }
 

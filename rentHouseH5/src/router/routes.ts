@@ -74,6 +74,12 @@ const otherRoutes: RouteRecordRaw[] = [
     meta: { title: '租约详情' },
   },
   {
+    path: '/appointmentDetail',
+    name: 'AppointmentDetail',
+    component: () => import('@/views/appointmentDetail/appointmentDetail.vue'),
+    meta: { title: '预约详情' },
+  },
+  {
     path: '/browsingHistory',
     name: 'BrowsingHistory',
     component: () => import('@/views/browsingHistory/browsingHistory.vue'),

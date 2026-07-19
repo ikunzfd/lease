@@ -53,7 +53,7 @@
         <van-cell title="关于我们" icon="info-o" is-link @click="showAbout" />
         <van-cell title="深色模式" icon="bulb-o">
           <template #right-icon>
-            <van-switch v-model="darkModeStore.darkMode" size="22px" @change="darkModeStore.toggleDarkMode()" />
+            <van-switch :model-value="darkModeStore.darkMode" size="22px" @change="darkModeStore.toggleDarkMode()" />
           </template>
         </van-cell>
       </van-cell-group>

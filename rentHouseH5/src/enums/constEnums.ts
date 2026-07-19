@@ -38,37 +38,37 @@ export function getLabelByValue<T extends Record<string | number, string>>(
 
 /** 设施图标映射：数据库中文图标名 → Vant 内置图标 */
 const facilityIconMap: Record<string, string> = {
-  '健身房': 'fire-o',
-  '停车位': 'guide-o',
-  '停车场': 'guide-o',
-  '电梯': 'up-down',
-  '空调': 'wind-o',
-  '洗衣机': 'brush-o',
-  '冰箱': 'drink',
-  'WIFI': 'wifi-o',
-  '宽带': 'wifi-o',
-  '床': 'home-o',
-  '沙发': 'service-o',
-  '微波炉': 'fire-o',
-  '油烟机': 'filter-o',
+  '健身房': 'medal-o',       // 奖牌→运动健身
+  '停车位': 'logistics',     // 运输/物流→停车
+  '停车场': 'logistics',
+  '电梯': 'exchange',        // 上下箭头→升降
+  '空调': 'flower-o',        // 花瓣→送风/凉爽
+  '洗衣机': 'records',       // 列表记录→清洗程序
+  '冰箱': 'shop-o',          // 商店→储物/保鲜
+  'WIFI': 'cluster-o',       // 节点→网络
+  '宽带': 'cluster-o',
+  '床': 'home-o',            // 房子→家居
+  '沙发': 'home-o',          // 同上
+  '微波炉': 'fire-o',        // 火焰→加热
+  '油烟机': 'filter-o',      // 过滤→净化油烟
   '抽油烟机': 'filter-o',
-  '热水器': 'hot-o',
-  '衣柜': 'orders-o',
-  '电视机': 'tv-o',
-  '书桌': 'desktop-o',
-  '安全监控': 'eye-o',
-  '监控': 'eye-o',
-  '桌球区': 'bill-o',
-  '台球': 'bill-o',
-  '便利店': 'shop-o',
-  '休息室': 'clock-o',
-  '书吧': 'bookmark-o',
-  '休闲区': 'smile-o',
-  '安保': 'shield-o',
+  '热水器': 'hot-o',         // 热气→热水
+  '衣柜': 'bag-o',           // 包→衣物收纳
+  '电视机': 'tv-o',          // 电视
+  '书桌': 'desktop-o',       // 桌面→书桌
+  '安全监控': 'video-o',     // 视频→监控
+  '监控': 'video-o',
+  '桌球区': 'play-circle-o', // 播放→娱乐
+  '台球': 'play-circle-o',
+  '便利店': 'shop-o',        // 商店
+  '休息室': 'smile-comment-o', // 微笑→休闲
+  '书吧': 'bookmark-o',      // 书签→阅读
+  '休闲区': 'smile-o',       // 笑脸→休闲
+  '安保': 'shield-o',        // 盾牌→安全
   '24H安保': 'shield-o',
-  '社区活动': 'friends-o',
+  '社区活动': 'friends-o',   // 好友→社交
   '团建': 'friends-o',
-  '智能门锁': 'lock',
+  '智能门锁': 'lock',        // 锁
   '智能锁': 'lock',
 }
 

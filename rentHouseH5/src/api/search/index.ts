@@ -53,12 +53,12 @@ export function getPaymentTypeList() {
 }
 
 export function getPaymentListByRoomId(roomId: number) {
-  return http.get<PaymentType[]>('/app/payment/listByRoomId', { roomId })
+  return http.get<PaymentType[]>('/app/payment/listByRoomId', { id: roomId })
 }
 
 // ========== 租期 ==========
 export function getTermListByRoomId(roomId: number) {
-  return http.get<LeaseTerm[]>('/app/term/listByRoomId', { roomId })
+  return http.get<LeaseTerm[]>('/app/term/listByRoomId', { id: roomId })
 }
 
 // ========== 预约 ==========
