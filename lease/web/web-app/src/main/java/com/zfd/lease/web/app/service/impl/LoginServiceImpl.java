@@ -34,25 +34,29 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public void getCode(String phone) {
+        if (phone == null || phone.isEmpty()) {
+            throw new LeaseException(ResultCodeEnum.APP_LOGIN_PHONE_EMPTY);
+        }
         String code = CodeUtil.getRandomCode(6);
         String key = RedisConstant.APP_LOGIN_PREFIX + phone;
 
-        // 原子操作：使用 SET NX 防止并发绕过频率限制
-        Boolean success = redisTemplate.opsForValue()
-                .setIfAbsent(key, code, RedisConstant.APP_LOGIN_CODE_TTL_SEC, TimeUnit.SECONDS);
-
-        if (Boolean.TRUE.equals(success)) {
-            try {
-                smsService.sendCode(phone, code);
-            } catch (Exception e) {
-                redisTemplate.delete(key);
-                throw new RuntimeException(e);
-            }
-        } else {
+        // 检查是否已有验证码
+        String existingCode = redisTemplate.opsForValue().get(key);
+        if (existingCode != null) {
+            // Key 存在，检查是否在冷却期内
             Long ttl = redisTemplate.getExpire(key, TimeUnit.SECONDS);
             if (ttl != null && RedisConstant.APP_LOGIN_CODE_TTL_SEC - ttl < RedisConstant.APP_LOGIN_CODE_RESEND_TIME_SEC) {
                 throw new LeaseException(ResultCodeEnum.APP_SEND_SMS_TOO_OFTEN);
             }
+        }
+
+        // 首次发送或已过冷却期：写入 Redis 并发送短信
+        redisTemplate.opsForValue().set(key, code, RedisConstant.APP_LOGIN_CODE_TTL_SEC, TimeUnit.SECONDS);
+        try {
+            smsService.sendCode(phone, code);
+        } catch (Exception e) {
+            redisTemplate.delete(key);
+            throw new RuntimeException(e);
         }
     }
 
