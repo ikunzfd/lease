@@ -224,6 +224,9 @@ const formData = ref<AgreementInterface>({
   name: '',
   phone: '',
   identificationNumber: '',
+  provinceId: '' as string | number,
+  cityId: '' as string | number,
+  districtId: '' as string | number,
   apartmentId: '',
   roomId: '',
   leaseStartDate: '',
@@ -282,6 +285,9 @@ const areaInfo = reactive({
 watch(
   () => areaInfo,
   (newVal) => {
+    ;(formData.value as any).provinceId = newVal.provinceId
+    ;(formData.value as any).cityId = newVal.cityId
+    ;(formData.value as any).districtId = newVal.districtId
     formData.value.apartmentId = newVal.apartmentId
     formData.value.roomId = newVal.roomId
   },

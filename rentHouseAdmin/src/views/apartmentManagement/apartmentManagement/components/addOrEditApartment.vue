@@ -76,6 +76,7 @@
           v-model="formData.addressDetail"
           filterable
           remote
+          allow-create
           clearable
           placeholder="请输入详细地址查询"
           :remote-method="remoteMethod"

@@ -54,7 +54,7 @@
                 and ai.district_id = #{queryVo.districtId}
             </if>
             <if test="queryVo.apartmentId != null">
-                and apartment_id = #{queryVo.apartmentId}
+                and ri.apartment_id = #{queryVo.apartmentId}
             </if>
         </where>
     </select>

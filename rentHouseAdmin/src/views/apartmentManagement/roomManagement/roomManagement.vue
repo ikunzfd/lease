@@ -298,7 +298,8 @@ function resetApartment() {
 }
 // 省份改变回调
 const provinceChangeCallback = async () => {
-  let provinceId = proTable.value!.searchParam.provinceId
+  let provinceId = areaInfo.provinceId
+  proTable.value!.searchParam.provinceId = provinceId
   if (provinceId) {
     resetCity()
     resetDistrict()
@@ -316,7 +317,8 @@ const provinceClearCallback = () => {
 }
 // 城市改变回调
 const cityChangeCallback = async () => {
-  let cityId = proTable.value!.searchParam.cityId
+  let cityId = areaInfo.cityId
+  proTable.value!.searchParam.cityId = cityId
   if (cityId) {
     resetDistrict()
     resetApartment()
@@ -333,7 +335,8 @@ const cityClearCallback = () => {
 }
 // 区域改变回调
 const districtChangeCallback = async () => {
-  let districtId = proTable.value!.searchParam.districtId
+  let districtId = areaInfo.districtId
+  proTable.value!.searchParam.districtId = districtId
   if (districtId) {
     resetApartment()
     await getApartmentListHandle(districtId)

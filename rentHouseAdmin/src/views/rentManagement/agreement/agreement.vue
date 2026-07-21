@@ -438,7 +438,7 @@ const dataCallback = (data: any) => {
 // 查看
 const editHandle = (row: AgreementInfoInterface) => {
   router.push({
-    path: '/rentManagement/agreement/addOrEditAgreement',
+    path: '/agreementManagement/agreement/addOrEditAgreement',
     query: {
       id: row.id,
     },
@@ -447,7 +447,7 @@ const editHandle = (row: AgreementInfoInterface) => {
 // 新增
 const addHandle = () => {
   router.push({
-    path: '/rentManagement/agreement/addOrEditAgreement',
+    path: '/agreementManagement/agreement/addOrEditAgreement',
   })
 }
 // 删除
