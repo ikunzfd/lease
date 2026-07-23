@@ -53,7 +53,11 @@ public class FileServiceImpl implements FileService {
                             .contentType(file.getContentType())
                             .build());
 
-            return String.join("/", properties.getEndpoint(), properties.getBucketName(), filename);
+            String publicEndpoint = properties.getPublicEndpoint();
+            if (publicEndpoint == null || publicEndpoint.isBlank()) {
+                publicEndpoint = properties.getEndpoint();
+            }
+            return String.join("/", publicEndpoint, properties.getBucketName(), filename);
 
     }
 
